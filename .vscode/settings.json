@@ -1,0 +1,45 @@
+{
+	"[html]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[php]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+	},
+	"[js]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[json]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[jsonc]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[css]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "stylelint.vscode-stylelint"
+	},
+	"editor.colorDecorators": true,
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true,
+		"source.fixAll.stylelint": true
+	},
+	"typescript.preferences.importModuleSpecifierEnding": "js",
+	"javascript.preferences.importModuleSpecifierEnding": "js",
+	"task.allowAutomaticTasks": "on",
+	"emmet.showSuggestionsAsSnippets": true,
+	"emmet.extensionsPath": ["./.vscode"],
+	"php.executablePath": "C:\\xampp\\php\\php.exe",
+	"php.validate.executablePath": "C:\\xampp\\php\\php.exe",
+	"eslint.format.enable": true,
+	"intelephense.format.braces": "k&r",
+	"javascript.inlayHints.parameterNames.enabled": "all",
+	"lit-plugin.strict": true,
+	"lit-plugin.rules.no-missing-import": "error",
+	"lit-plugin.dontShowSuggestions": false
+}

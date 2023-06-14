@@ -1,0 +1,10 @@
+{
+	"html": {
+		"snippets": {
+			"lib": "<?= include_once '${2}lib/${1:index}.php' ?>",
+			"script:module": "<script type=\"module\">\n\t// @ts-check\n\n\t${1}\n</script>",
+			"script:module:src": "<script type=\"module\" src=\"${1:index}.js\"></script>",
+			"style:src": "<link rel=\"stylesheet\" href=\"${1:index}.css\">"
+		}
+	}
+}

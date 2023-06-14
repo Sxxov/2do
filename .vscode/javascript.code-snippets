@@ -1,0 +1,7 @@
+{
+	"JSDoc: @type": {
+		"prefix": ["/"],
+		"body": ["/** @type {${2}} */"],
+		"description": "A simple shorthand for JSDoc @type comments"
+	}
+}

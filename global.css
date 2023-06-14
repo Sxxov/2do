@@ -1,0 +1,232 @@
+/* stylelint-disable custom-property-pattern */
+
+/* —————————————————————————————font-declarations———————————————————————————— */
+@font-face {
+	font-display:  swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 300;
+	src: url('/vendor/google/fonts/f69cdb03e579f6b9ed6cdedf7790b65e.woff2') format('woff2');
+	unicode-range: u+0102-0103, u+0110-0111, u+0128-0129, u+0168-0169, u+01a0-01a1, u+01af-01b0, u+0300-0301, u+0303-0304, u+0308-0309, u+0323, u+0329, u+1ea0-1ef9, u+20ab
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 300;
+	src: url('/vendor/google/fonts/e5b509ac357029ece2559e7fcae63683.woff2') format('woff2');
+	unicode-range: u+0100-02af, u+0304, u+0308, u+0329, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20cf, u+2113, u+2c60-2c7f, u+a720-a7ff
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 300;
+	src: url('/vendor/google/fonts/3fd0bc1748d3b8bf14e0dea1288a9fba.woff2') format('woff2');
+	unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+2074, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 500;
+	src: url('/vendor/google/fonts/f69cdb03e579f6b9ed6cdedf7790b65e.woff2') format('woff2');
+	unicode-range: u+0102-0103, u+0110-0111, u+0128-0129, u+0168-0169, u+01a0-01a1, u+01af-01b0, u+0300-0301, u+0303-0304, u+0308-0309, u+0323, u+0329, u+1ea0-1ef9, u+20ab
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 500;
+	src: url('/vendor/google/fonts/e5b509ac357029ece2559e7fcae63683.woff2') format('woff2');
+	unicode-range: u+0100-02af, u+0304, u+0308, u+0329, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20cf, u+2113, u+2c60-2c7f, u+a720-a7ff
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 500;
+	src: url('/vendor/google/fonts/3fd0bc1748d3b8bf14e0dea1288a9fba.woff2') format('woff2');
+	unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+2074, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 600;
+	src: url('/vendor/google/fonts/f69cdb03e579f6b9ed6cdedf7790b65e.woff2') format('woff2');
+	unicode-range: u+0102-0103, u+0110-0111, u+0128-0129, u+0168-0169, u+01a0-01a1, u+01af-01b0, u+0300-0301, u+0303-0304, u+0308-0309, u+0323, u+0329, u+1ea0-1ef9, u+20ab
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 600;
+	src: url('/vendor/google/fonts/e5b509ac357029ece2559e7fcae63683.woff2') format('woff2');
+	unicode-range: u+0100-02af, u+0304, u+0308, u+0329, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20cf, u+2113, u+2c60-2c7f, u+a720-a7ff
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 600;
+	src: url('/vendor/google/fonts/3fd0bc1748d3b8bf14e0dea1288a9fba.woff2') format('woff2');
+	unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+2074, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 700;
+	src: url('/vendor/google/fonts/f69cdb03e579f6b9ed6cdedf7790b65e.woff2') format('woff2');
+	unicode-range: u+0102-0103, u+0110-0111, u+0128-0129, u+0168-0169, u+01a0-01a1, u+01af-01b0, u+0300-0301, u+0303-0304, u+0308-0309, u+0323, u+0329, u+1ea0-1ef9, u+20ab
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 700;
+	src: url('/vendor/google/fonts/e5b509ac357029ece2559e7fcae63683.woff2') format('woff2');
+	unicode-range: u+0100-02af, u+0304, u+0308, u+0329, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20cf, u+2113, u+2c60-2c7f, u+a720-a7ff
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 700;
+	src: url('/vendor/google/fonts/3fd0bc1748d3b8bf14e0dea1288a9fba.woff2') format('woff2');
+	unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+2074, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd
+}
+
+@font-face {
+	font-display: swap;
+	font-family: Gloock;
+	font-style: normal;
+	font-weight: 400;
+	src: url('/vendor/google/fonts/f2b5899f1106dc81fbe857e445a31f69.woff2') format('woff2');
+	unicode-range: u+0460-052f, u+1c80-1c88, u+20b4, u+2de0-2dff, u+a640-a69f, u+fe2e-fe2f
+}
+
+@font-face {
+	font-display: swap;
+	font-family: Gloock;
+	font-style: normal;
+	font-weight: 400;
+	src: url('/vendor/google/fonts/fdab0dba0d06653d72dc26b4040e8a9c.woff2') format('woff2');
+	unicode-range: u+0100-02af, u+0304, u+0308, u+0329, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20cf, u+2113, u+2c60-2c7f, u+a720-a7ff
+}
+
+@font-face {
+	font-display: swap;
+	font-family: Gloock;
+	font-style: normal;
+	font-weight: 400;
+	src: url('/vendor/google/fonts/e29e18b897f6aba41e6e8176f07fce32.woff2') format('woff2');
+	unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+2074, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd
+}
+
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	font-display: block;
+	src: url('/vendor/google/fonts/64c78e5f200abc868fc1e901117c9a28.woff2') format('woff2');
+}
+
+:root {
+	/* —————————————————————————————————colours—————————————————————————————————— */
+	----colour-background-transparent: #0c0c0d00;
+	----colour-background-primary: #0c0c0d;
+	----colour-background-secondary: #19191b;
+	----colour-background-tertiary: #212124;
+	----colour-accent-transparent: #ffa4aa00;
+	----colour-accent-primary: #ffa4aa;
+	----colour-accent-secondary: #ffa4aa66;
+	----colour-accent-tertiary: #ffa4aa33;
+	----colour-text-transparent: #f1f5f900;
+	----colour-text-primary: #f1f5f9;
+	----colour-text-secondary: #6d7074;
+	----colour-text-tertiary: #e2e8f033;
+	----colour-overlay: #0008;
+
+	/* —————————————————————————————————shadows—————————————————————————————————— */
+	----shadow-glow-sm: 0 1px 2px 0 var(----colour-accent-secondary);
+	----shadow-glow-md: 0 4px 4px -1px var(----colour-accent-secondary);
+	----shadow-glow-lg: 0 8px 8px -1px var(----colour-accent-secondary);
+	----shadow-glow-xl: 0 16px 16px -1px var(----colour-accent-secondary);
+	----shadow-glow-2xl: 0 25px 25px -3px var(----colour-accent-secondary);
+	----shadow-glow-3xl: 0 35px 35px -5px var(----colour-accent-secondary);
+	----shadow-glow-none: 0 0 0 0 var(----colour-accent-secondary);
+	----shadow-sm:
+		1px 1px 2px 0 rgb(0 0 0 / 30%),
+		-1px -1px 2px 0 rgb(241 245 249 / 10%);
+	----shadow-md:
+		2px 2px 16px -1px rgb(0 0 0 / 52%),
+		-2px -2px 16px -1px rgb(241 245 249 / 16%);
+	----shadow-lg:
+		5px 5px 25px -3px rgb(0 0 0 / 50%),
+		-5px -5px 25px -3px rgb(241 245 249 / 16%);
+	----shadow-xl:
+		10px 10px 35px -5px rgb(0 0 0 / 58%),
+		-10px -10px 35px -5px rgb(241 245 249 / 16%);
+	----shadow-2xl:
+		12.5px 12.5px 60px -12px rgb(0 0 0 / 70%),
+		-12.5px -12.5px 60px -12px rgb(241 245 249 / 25%);
+	----shadow-3xl:
+		17.5px 17.5px 70px -15px rgb(0 0 0 / 80%),
+		-17.5px -17.5px 70px -15px rgb(241 245 249 / 30%);
+	----shadow-none:
+		0 0 0 0 rgb(0 0 0 / 10%),
+		0 0 0 0 rgb(241 245 249 / 5%);
+	----shadow-inner-sm:
+		inset 1px 1px 2px 0 rgb(0 0 0 / 10%),
+		inset -1px -1px 2px 0 rgb(241 245 249 / 5%);
+	----shadow-inner-md:
+		inset 2px 2px 16px -1px rgb(0 0 0 / 32%),
+		inset -2px -2px 16px -1px rgb(241 245 249 / 16%);
+	----shadow-inner-lg:
+		inset 5px 5px 25px -3px rgb(0 0 0 / 30%),
+		inset -5px -5px 25px -3px rgb(241 245 249 / 15%);
+	----shadow-inner-xl:
+		inset 10px 10px 35px -5px rgb(0 0 0 / 28%),
+		inset -10px -10px 35px -5px rgb(241 245 249 / 14%);
+	----shadow-inner-2xl:
+		inset 12.5px 12.5px 60px -12px rgb(0 0 0 / 50%),
+		inset -12.5px -12.5px 60px -12px rgb(241 245 249 / 25%);
+	----shadow-inner-3xl:
+		inset 17.5px 17.5px 70px -15px rgb(0 0 0 / 60%),
+		inset -17.5px -17.5px 70px -15px rgb(241 245 249 / 30%);
+	----shadow-inner-none:
+		inset 0 0 0 0 rgb(0 0 0 / 10%),
+		inset 0 0 0 0 rgb(241 245 249 / 5%);
+
+	/* ——————————————————————————————font-families——————————————————————————————— */
+	----font-family-display: 'Gloock', 'Times New Roman', serif;
+	----font-family-sans: 'Space Grotesk', 'Inter', 'Helvetica', sans-serif;
+	----font-family-ic: 'Material Icons';
+	
+	/* —————————————————————————————————easings—————————————————————————————————— */
+	----ease-fast-slow: cubic-bezier(0.075, 0.82, 0.165, 1);
+	----ease-slow-slow: cubic-bezier(0.77, 0, 0.175, 1);
+	----ease-slow-fast: cubic-bezier(0.5, 0, 0.75, 0);
+	
+	/* —————————————————————————————————layout——————————————————————————————————— */
+	----padding: clamp(8px, 8%, 28px);
+	----roundness: 28px;
+}
+
+body {
+	margin: 0;
+	background: var(----colour-background-primary);
+}

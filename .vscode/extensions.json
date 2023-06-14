@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"vunguyentuan.vscode-css-variables",
+		"stylelint.vscode-stylelint",
+		"ronilaukkarinen.vscode-stylefmt",
+		"bmewburn.vscode-intelephense-client",
+		"shuaihu.html-embedded-javascript"
+	]
+}
