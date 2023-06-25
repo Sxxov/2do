@@ -108,15 +108,7 @@ $sessionId = session_id();
 try {
 	$db->query(
 		<<<SQL
-			DELETE FROM sessions WHERE user_id = "{$user->id}";
-		SQL
-		,
-	);
-	$db->query(
-		<<<SQL
-			DELETE FROM sessions WHERE session_id = "{$db->real_escape_string(
-			$sessionId,
-		)}";
+			DELETE FROM sessions WHERE user_id = "{$user->id}" OR session_id = "{$sessionId}";
 		SQL
 		,
 	);
