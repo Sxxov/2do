@@ -29,6 +29,8 @@ try {
 		require_once $request_uri . '.php';
 	} elseif (is_file($request_uri . '/index.php')) {
 		require_once $request_uri . '/index.php';
+	} elseif (is_file($request_uri . '/index.html')) {
+		require_once $request_uri . '/index.html';
 	} else {
 		require_once '404.php';
 	}
