@@ -9,29 +9,38 @@ class ResErr {
 	public ?string $detail;
 	public ?string $redirect;
 
+	public function __construct(
+		ResErrCodes $code,
+		?string $field = null,
+		?string $message = null,
+		?string $detail = null,
+		?string $redirect = null,
+	) {
+		$this->code = $code;
+		if ($field) {
+			$this->field = $field;
+		}
+		if ($message) {
+			$this->message = $message;
+		}
+		if ($detail) {
+			$this->detail = $detail;
+		}
+		if ($redirect) {
+			$this->redirect = $redirect;
+		}
+	}
+
 	public static function send(
 		ResErrCodes $code,
 		?string $field = null,
 		?string $message = null,
 		?string $detail = null,
 		?string $redirect = null,
-		?int $http = 500,
+		?HttpCodes $http = HttpCodes::INTERNAL_SERVER_ERROR,
 	) {
-		http_response_code($http);
-		$error = new ResErr();
-		$error->code = $code;
-		if ($field) {
-			$error->field = $field;
-		}
-		if ($message) {
-			$error->message = $message;
-		}
-		if ($detail) {
-			$error->detail = $detail;
-		}
-		if ($redirect) {
-			$error->redirect = $redirect;
-		}
+		http_response_code($http->value);
+		$error = new ResErr($code, $field, $message, $detail, $redirect);
 		echo $error;
 	}
 
