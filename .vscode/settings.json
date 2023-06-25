@@ -5,7 +5,7 @@
 	},
 	"[php]": {
 		"editor.formatOnSave": true,
-		"editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"[js]": {
 		"editor.formatOnSave": true,

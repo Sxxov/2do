@@ -7,4 +7,7 @@ module.exports = {
 	endOfLine: 'crlf',
 	singleAttributePerLine: false,
 	plugins: ['@prettier/plugin-php'],
+	phpVersion: '8.2',
+	trailingCommaPHP: true,
+	braceStyle: '1tbs',
 };
