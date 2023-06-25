@@ -2,6 +2,7 @@
 
 namespace api\v1\auth;
 
+use api\v1\lib\common\HttpCodes;
 use api\v1\lib\common\ResErr;
 use api\v1\lib\common\ResErrCodes;
 use api\v1\lib\common\ResOk;
@@ -16,15 +17,15 @@ $body = file_get_contents('php://input');
 $in = json_decode($body);
 
 if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
-	return ResErr::send(ResErrCodes::INCOMPLETE, http: 400);
+	return ResErr::send(ResErrCodes::INCOMPLETE, http: HttpCodes::BAD_REQUEST);
 }
 
-if (
-	strlen($in->username) < 3 ||
-	strlen($in->username) > 20 ||
-	!preg_match('/^[a-zA-Z0-9-._]+$/', $in->username)
-) {
-	return ResErr::send(ResErrCodes::INVALID, http: 400, field: 'username');
+if (!User::isValidUsername($in->username)) {
+	return ResErr::send(
+		ResErrCodes::INVALID,
+		http: HttpCodes::BAD_REQUEST,
+		field: 'username',
+	);
 }
 
 try {
@@ -38,22 +39,26 @@ try {
 			,
 		)->num_rows > 0
 	) {
-		return ResErr::send(ResErrCodes::SIGN_UP_USERNAME_TAKEN, http: 400);
+		return ResErr::send(
+			ResErrCodes::SIGN_UP_USERNAME_TAKEN,
+			http: HttpCodes::BAD_REQUEST,
+		);
 	}
 } catch (mysqli_sql_exception $err) {
 	return ResErr::send(
 		ResErrCodes::UNKNOWN,
-		http: 500,
+		http: HttpCodes::INTERNAL_SERVER_ERROR,
 		message: 'Failed to check if username is taken',
 		detail: $err,
 	);
 }
 
-if (
-	strlen($in->email) > 255 ||
-	!filter_var($in->email, FILTER_VALIDATE_EMAIL)
-) {
-	return ResErr::send(ResErrCodes::INVALID, http: 400, field: 'email');
+if (!User::isValidEmail($in->email)) {
+	return ResErr::send(
+		ResErrCodes::INVALID,
+		http: HttpCodes::BAD_REQUEST,
+		field: 'email',
+	);
 }
 
 try {
@@ -67,31 +72,35 @@ try {
 			,
 		)->num_rows > 0
 	) {
-		return ResErr::send(ResErrCodes::SIGN_UP_EMAIL_TAKEN, http: 400);
+		return ResErr::send(
+			ResErrCodes::SIGN_UP_EMAIL_TAKEN,
+			http: HttpCodes::BAD_REQUEST,
+		);
 	}
 } catch (mysqli_sql_exception $err) {
 	return ResErr::send(
 		ResErrCodes::UNKNOWN,
-		http: 500,
+		http: HttpCodes::INTERNAL_SERVER_ERROR,
 		message: 'Failed to check if email is taken',
 		detail: $err,
 	);
 }
 
-if (strlen($in->password) < 8 || strlen($in->password) > 20) {
-	return ResErr::send(ResErrCodes::INVALID, http: 400, field: 'password');
+if (!User::isValidPassword($in->password)) {
+	return ResErr::send(
+		ResErrCodes::INVALID,
+		http: HttpCodes::BAD_REQUEST,
+		field: 'password',
+	);
 }
 
-$user = new User();
-$user->username = $in->username;
-$user->id = uniqid();
-$user->email = $in->email;
+$user = new User(username: $in->username, email: $in->email, id: uniqid());
 
 try {
-	$hash = password_hash($in->password, PASSWORD_BCRYPT);
+	$hash = password_hash($in->password, PASSWORD_DEFAULT);
 	$db->query(
 		<<<SQL
-			INSERT INTO users (user_id, username, email, password) VALUES ("{$user->id}", "{$db->real_escape_string(
+		INSERT INTO users (user_id, username, email, password) VALUES ("{$user->id}", "{$db->real_escape_string(
 			$user->username,
 		)}", "{$db->real_escape_string($user->email)}", "{$hash}");
 		SQL
@@ -99,34 +108,10 @@ try {
 	);
 } catch (mysqli_sql_exception $err) {
 	echo $err;
-	return ResErr::send(ResErrCodes::SIGN_UP_USERNAME_TAKEN, http: 400);
-}
-
-session_start();
-$sessionId = session_id();
-
-try {
-	$db->query(
-		<<<SQL
-			DELETE FROM sessions WHERE user_id = "{$user->id}" OR session_id = "{$sessionId}";
-		SQL
-		,
-	);
-	$db->query(
-		<<<SQL
-			INSERT INTO sessions (session_id, user_id) VALUES ("{$db->real_escape_string(
-			$sessionId,
-		)}", "{$user->id}");
-		SQL
-		,
-	);
-} catch (mysqli_sql_exception $err) {
 	return ResErr::send(
-		ResErrCodes::UNKNOWN,
-		http: 500,
-		message: 'Failed to create session',
-		detail: $err,
+		ResErrCodes::SIGN_UP_USERNAME_TAKEN,
+		http: HttpCodes::BAD_REQUEST,
 	);
 }
 
-return ResOk::send($user);
+require 'api/v1/auth/sign-in.php';
