@@ -5,6 +5,7 @@
 		"stylelint.vscode-stylelint",
 		"ronilaukkarinen.vscode-stylefmt",
 		"bmewburn.vscode-intelephense-client",
-		"shuaihu.html-embedded-javascript"
+		"shuaihu.html-embedded-javascript",
+		"runem.lit-plugin"
 	]
 }
