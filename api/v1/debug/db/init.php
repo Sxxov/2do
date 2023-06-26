@@ -29,4 +29,4 @@ $db->query(
 	,
 );
 
-return ResOk::send([]);
+return (new ResOk([]))->echo();

@@ -31,23 +31,23 @@ class ResErr {
 		}
 	}
 
-	public static function send(
-		ResErrCodes $code,
-		?string $field = null,
-		?string $message = null,
-		?string $detail = null,
-		?string $redirect = null,
-		?HttpCodes $http = HttpCodes::INTERNAL_SERVER_ERROR,
-	) {
-		http_response_code($http->value);
-		$error = new ResErr($code, $field, $message, $detail, $redirect);
-		echo $error;
+	public function echo() {
+		http_response_code($this->code->http()->value);
+		echo $this;
 	}
 
 	public function __toString(): string {
 		return json_encode([
 			'ok' => false,
-			'err' => $this,
+			'err' => [
+				'code' => $this->code->key(),
+				...isset($this->field) ? ['field' => $this->field] : [],
+				...isset($this->message) ? ['message' => $this->message] : [],
+				...isset($this->detail) ? ['detail' => $this->detail] : [],
+				...isset($this->redirect)
+					? ['redirect' => $this->redirect]
+					: [],
+			],
 		]);
 	}
 }

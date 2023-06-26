@@ -14,17 +14,16 @@ class ResOk {
 		}
 	}
 
-	public static function send($data, ?string $redirect = null) {
+	public function echo() {
 		http_response_code(200);
-		$ok = new ResOk($data, $redirect);
-		echo $ok;
+		echo $this;
 	}
 
 	public function __toString(): string {
 		return json_encode([
 			'ok' => true,
 			'data' => $this->data,
-			'redirect' => $this->redirect,
+			...isset($this->redirect) ? ['redirect' => $this->redirect] : [],
 		]);
 	}
 }

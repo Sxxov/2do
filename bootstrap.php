@@ -35,10 +35,9 @@ try {
 		require_once '404.php';
 	}
 } catch (Exception $err) {
-	return ResErr::send(
+	return (new ResErr(
 		ResErrCodes::UNKNOWN,
-		http: HttpCodes::INTERNAL_SERVER_ERROR,
 		message: 'An unknown error occurred',
 		detail: $err,
-	);
+	))->echo();
 }
