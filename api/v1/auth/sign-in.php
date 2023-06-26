@@ -100,4 +100,4 @@ try {
 	);
 }
 
-return ResOk::send($user);
+return ResOk::send($user, redirect: '/');

@@ -24,6 +24,7 @@ class ResOk {
 		return json_encode([
 			'ok' => true,
 			'data' => $this->data,
+			'redirect' => $this->redirect,
 		]);
 	}
 }
