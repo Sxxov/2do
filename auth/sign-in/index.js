@@ -7,7 +7,7 @@ import { Toast } from '../../lib/components/Toast.js';
 import { Toaster } from '../../lib/components/Toaster.js';
 import '../../lib/layout/Main.js';
 
-export class SignInRoute extends X {
+export class AuthSignInRoute extends X {
 	/** @override */
 	render() {
 		return html`
@@ -249,4 +249,4 @@ export class SignInRoute extends X {
 		`,
 	];
 }
-customElements.define('x-index', SignInRoute);
+customElements.define('x-index', AuthSignInRoute);
