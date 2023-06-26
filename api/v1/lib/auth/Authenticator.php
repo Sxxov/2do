@@ -18,17 +18,19 @@ class Authenticator {
 		$this->db = $db ?? Db::connect(DbInfo::getApp());
 	}
 
-	private function getSession() {
-		return session_id();
-	}
-
-	private function createSession(User $user): string {
-		$sessionId = $this->getSession();
+	public function getSession() {
+		$sessionId = session_id();
 
 		if (!$sessionId) {
 			session_start();
 			$sessionId = session_id();
 		}
+
+		return $sessionId;
+	}
+
+	private function createSession(User $user): string {
+		$sessionId = $this->getSession();
 
 		try {
 			$this->db->query(
@@ -93,18 +95,11 @@ class Authenticator {
 
 		$this->createSession($user);
 
-		return new ResOk($user, redirect: '/');
+		return new ResOk($user, redirect: '/app');
 	}
 
 	public function signOut(?string $sessionId = null) {
-		if (!$sessionId) {
-			session_start();
-			$sessionId = session_id();
-		}
-
-		if (!$sessionId) {
-			return new ResOk([]);
-		}
+		$sessionId ??= $this->getSession();
 
 		try {
 			$this->db->query(
@@ -209,7 +204,7 @@ class Authenticator {
 
 		$this->createSession($user);
 
-		return new ResOk($user, redirect: '/');
+		return new ResOk($user, redirect: '/app');
 	}
 
 	public function getSessionUser(?string $sessionId = null) {
