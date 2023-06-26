@@ -94,7 +94,11 @@ if (!User::isValidPassword($in->password)) {
 	);
 }
 
-$user = new User(username: $in->username, email: $in->email, id: uniqid());
+$user = new User(
+	username: $in->username,
+	email: $in->email,
+	id: uniqid('user_'),
+);
 
 try {
 	$hash = password_hash($in->password, PASSWORD_DEFAULT);
