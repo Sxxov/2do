@@ -21,6 +21,11 @@ export class AuthSignInRoute extends X {
 							id="sign-in"
 							@keydown="${(/** @type {KeyboardEvent} */ e) => {
 								if (e.key === 'Enter') {
+									// blur focus from input to emit `change` event
+									/** @type {HTMLElement} */ (
+										e.target
+									)?.blur?.();
+
 									e.preventDefault();
 									e.stopPropagation();
 									/** @type {HTMLFormElement} */ (
