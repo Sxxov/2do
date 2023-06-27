@@ -21,7 +21,7 @@ if (!isset($in->id) || !isset($in->title) || !isset($in->description)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-$userId = (new Authenticator())->getSessionUser();
+$userRes = (new Authenticator())->getSessionUser();
 
 $id = $in->id;
 $updatedTitle = $in->title;
@@ -38,7 +38,7 @@ try {
 			dateModified = "{$db->real_escape_string($dateModified)}"
 		WHERE todo_id = "{$db->real_escape_string(
 			$id,
-		)}" AND owner = "{$db->real_escape_string($userId)}";
+		)}" AND owner = "{$db->real_escape_string($userRes->data['id'])}";
 		SQL
 		,
 	);
