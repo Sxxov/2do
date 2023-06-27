@@ -1,42 +1,48 @@
 <?php
-// Create connection to the database
-$servername = "localhost";
-$username = "your_username";
-$password = " ";
-$dbname = "2do";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+namespace api\v1\lib\reminder;
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+use api\v1\lib\auth\Authenticator;
+use api\v1\lib\common\ResErr;
+use api\v1\lib\common\ResErrCodes;
+use api\v1\lib\common\ResOk;
+use api\v1\lib\db\Db;
+use api\v1\lib\db\DbInfo;
+use api\v1\lib\note\Note;
+use DateTime;
+use mysqli_sql_exception;
 
-// Get the current date
-$currentDate = date('Y-m-d');
-$currentDate = time('h:i:s');
+    $servername = "localhost";
+    $username = "your_username";
+    $password = " ";
+    $dbname = "2do";
 
-// Query to retrieve the nearest date past the current date
-$sql = "SELECT re_date FROM reminder WHERE re_date > '$currentDate' ORDER BY re_date ASC LIMIT 1";
-$result1 = $conn->query($sql);
+        $conn = new mysqli($servername, $username, $password, $dbname);
 
-$sql = "SELECT re_time FROM reminder WHERE re_time > '$currentTime' ORDER BY re_time ASC LIMIT 1";
-$result1 = $conn->query($sql);
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
-if ($result1->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $nearestDate = $row['re_date'];
-    if ($result2->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nearestTime = $row['re_time'];
-    //** put in whatever is supposed to happen when finding the nearest reminder */
-    } else {
-        echo "No functional reminders.";
-    }
-} else {
-    echo "No functional reminders.";
-}
+        // Get the current date and time
+        $currentDateTime = date('Y-m-d H:i:s');
 
-// Close the database connection
-$conn->close();
-?>
+        // Query to retrieve the 5 soonest items ordered by time and date
+        $sql = "SELECT * FROM your_table_name WHERE re_date > '$currentDateTime' ORDER BY re_time ASC LIMIT 5";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row['date_column'] . "</td>";
+                echo "<td>" . $row['time_column'] . "</td>";
+                echo "<td>" . $row['event_column'] . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='3'>No upcoming events found.</td></tr>";
+        }
+
+        // Close the database connection
+        $conn->close();
+        ?>
