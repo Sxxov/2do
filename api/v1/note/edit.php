@@ -51,20 +51,20 @@ try {
 			dateCreated: $row['dateCreated'],
 			dateModified: $row['dateModified'],
 		);
-		return new ResOk('Note updated successfully');
+		return (new ResOk('Note updated successfully'))->echo();
 	} else {
-		return new ResErr(
+		return (new ResErr(
 			ResErrCodes::NOTE_DISPLAY_ERROR,
 			message: 'Failed to edit note',
-		);
+		))->echo();
 	}
 } catch (mysqli_sql_exception $err) {
-	return new ResErr(
+	return (new ResErr(
 		ResErrCodes::NOTE_DISPLAY_ERROR,
 		message: 'Failed to edit note',
 		detail: $err,
-	);
+	))->echo();
 }
 
-return new ResOk($note);
+return (new ResOk($note))->echo();
 

@@ -32,16 +32,16 @@ try {
 	if ($db->affected_rows > 0) {
 		return new ResOk('Note deleted successfully');
 	} else {
-		return new ResErr(
+		return (new ResErr(
 			ResErrCodes::NOTE_DELETE_ERROR,
 			message: 'Failed to delete note',
-		);
+		))->echo();
 	}
 } catch (mysqli_sql_exception $err) {
-	return new ResErr(
+	return (new ResErr(
 		ResErrCodes::NOTE_DELETE_ERROR,
 		message: 'Failed to delete note',
 		detail: $err,
-	);
+	))->echo();
 }
 
