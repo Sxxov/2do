@@ -21,14 +21,14 @@ if (!isset($in->title) || !isset($in->description)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-$userId = (new Authenticator())->getSessionUser();
+$user = (new Authenticator())->getSessionUser();
 
 $dateCreated = (new DateTime())->format('Y-m-d H:i:s');
 $note = new Note(
 	id: uniqid('note_'),
 	title: $in->title,
-	owner: $userId,
-	description: $in->$description,
+	owner: $user->data['id'],
+	description: $in->description,
 	dateCreated: $dateCreated,
 	dateModified: $dateCreated,
 );
@@ -40,16 +40,16 @@ try {
 			title,
 			owner,
 			description,
-			dateCreated,
-			dateModified
+			date_created,
+			date_modified
 		)
 		VALUES (
 			"{$db->real_escape_string($note->id)}",
 			"{$db->real_escape_string($note->title)}",
 			"{$db->real_escape_string($note->owner)}",
 			"{$db->real_escape_string($note->description)}",
-			"{$db->real_escape_string($note->$dateCreated)}",
-			"{$db->real_escape_string($note->$dateModified)}"
+			"{$db->real_escape_string($note->dateCreated)}",
+			"{$db->real_escape_string($note->dateModified)}"
 		);
 		SQL
 		,
