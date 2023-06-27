@@ -121,76 +121,41 @@ export class AppRoute extends X {
 	async #getNotes() {
 		const user = await this.#getSessionUser();
 
+		// fake timeout cuz our server is too fast
 		await new Promise((resolve) => void setTimeout(resolve, 1000));
-		// const res = await fetch('/api/v1/note/all');
-		// const notes = /** @type {NoteRes[]} */ (await res.json());
-		const notes = [
-			{
-				id: '1',
-				title: 'Note 1',
-				description: 'This is a note.',
-				owner: user.id,
-				dateCreated: new Date()
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				dateModified: new Date()
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				peepeepoopoo: 'peepeepoopoo',
-			},
-			{
-				id: '2',
-				title: 'ANote 2',
-				description: 'This is a noteeeeeee.',
-				owner: user.id,
-				dateCreated: new Date(Date.now() - 10000)
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				dateModified: new Date(Date.now() + 10000)
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				peepeepoopoo: 'peepeepoopoo',
-			},
-			{
-				id: '3',
-				title: 'ZNote 3',
-				description: 'This is a noteeeeeeeeeesdfsdfgsfee.',
-				owner: user.id,
-				dateCreated: new Date(Date.now() - 20000)
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				dateModified: new Date(Date.now() + 20000)
-					.toISOString()
-					.slice(0, 19)
-					.replace('T', ' '),
-				peepeepoopoo: 'peepeepoopoo',
-			},
-		]; // stub
+		const res = await fetch('/api/v1/note/all');
+		const json =
+			/** @type {import('../lib/common/x/X.js').Res<NoteRes[]>} */ (
+				await res.json()
+			);
 
-		return notes.map((note) => {
-			if (note.owner !== user.id)
-				throw new Error(
-					"Oh nyo! Encountered note whose owner is not of the same user that's signed-in. This is a bug!",
-				);
+		if (!res.ok && !json.ok)
+			Toaster.toast(
+				json.error.message || 'Failed to fetch notes',
+				Toast.variants.error,
+			);
+		else if (res.ok && json.ok)
+			return json.data.map((note) => {
+				if (note.owner !== user.id)
+					throw new Error(
+						"Oh nyo! Encountered note whose owner is not of the same user that's signed-in. This is a bug!",
+					);
 
-			const dateCreated = new Date(note.dateCreated);
-			const dateModified = new Date(note.dateModified);
+				const dateCreated = new Date(note.dateCreated);
+				const dateModified = new Date(note.dateModified);
 
-			return {
-				id: note.id,
-				title: note.title,
-				description: note.description,
-				owner: user,
-				dateCreated,
-				dateModified,
-				peepeepoopoo: note.peepeepoopoo,
-			};
-		});
+				return {
+					id: note.id,
+					title: note.title,
+					description: note.description,
+					owner: user,
+					dateCreated,
+					dateModified,
+					peepeepoopoo: note.peepeepoopoo,
+				};
+			});
+
+		return [];
 	}
 
 	#createNote() {}
