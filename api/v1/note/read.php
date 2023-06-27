@@ -3,16 +3,12 @@
 namespace api\v1\auth;
 
 use api\v1\lib\auth\Authenticator;
-use api\v1\lib\common\HttpCodes;
 use api\v1\lib\common\ResErr;
 use api\v1\lib\common\ResErrCodes;
 use api\v1\lib\common\ResOk;
 use api\v1\lib\db\Db;
 use api\v1\lib\db\DbInfo;
-use api\v1\lib\note\Note as NoteNote;
 use api\v1\lib\note\Note;
-use api\v1\lib\user\User;
-use DateTime;
 use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
@@ -28,45 +24,29 @@ $userId = (new Authenticator())->getSessionUser();
 $id = $in->id;
 
 try {
-    $res = $db->query(
-        <<<SQL
-        SELECT * FROM notes WHERE todo_id = "{$db->real_escape_string($id)}";
-        SQL
-        ,
-    );
+	$res = $db->query(
+		<<<SQL
+		SELECT * FROM notes WHERE todo_id = "{$db->real_escape_string($id)}";
+		SQL
+		,
+	);
 
-    // $notes = [];
-    // while ($row = $res->fetch_assoc()) {
-    //     $note = new Note(
-    //         id: $row['todo_id'],
-    //         title: $row['title'],
-    //         owner: $row['owner'],
-    //         description: $row['description'],
-    //         dateCreated: $row['dateCreated'],
-    //         dateModified: $row['dateModified']
-    //     );
-    
-    //     $notes[] = $note;
-    // }
-
-    $row = $res->fetch_assoc();
-    $note = new Note(
-        id: $row['user_id'],
-        title: $row['title'],
-        owner: $row['owner'],
-        description: $row['description'],
-        dateCreated: $row['dateCreated'],
-        dateModified: $row['dateModified']
-    );
-
-
-
+	$row = $res->fetch_assoc();
+	$note = new Note(
+		id: $row['user_id'],
+		title: $row['title'],
+		owner: $row['owner'],
+		description: $row['description'],
+		dateCreated: $row['dateCreated'],
+		dateModified: $row['dateModified'],
+	);
 } catch (mysqli_sql_exception $err) {
 	return new ResErr(
-        ResErrCodes::NOTE_DISPLAY_ERROR,
-        message: 'Failed to display note',
-        detail: $err
-    );
+		ResErrCodes::NOTE_DISPLAY_ERROR,
+		message: 'Failed to display note',
+		detail: $err,
+	);
 }
 
 return new ResOk($note);
+
