@@ -21,13 +21,13 @@ if (!isset($in->title) || !isset($in->description)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-$user = (new Authenticator())->getSessionUser();
+$userRes = (new Authenticator())->getSessionUser();
 
 $dateCreated = (new DateTime())->format('Y-m-d H:i:s');
 $note = new Note(
 	id: uniqid('note_'),
 	title: $in->title,
-	owner: $user->data['id'],
+	owner: $userRes->data['id'],
 	description: $in->description,
 	dateCreated: $dateCreated,
 	dateModified: $dateCreated,

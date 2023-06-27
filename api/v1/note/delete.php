@@ -19,14 +19,14 @@ if (!isset($in->id)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-$userId = (new Authenticator())->getSessionUser();
+$userRes = (new Authenticator())->getSessionUser();
 $id = $in->id;
 
 try {
 	$query = <<<SQL
 	DELETE FROM notes WHERE todo_id = "{$db->real_escape_string(
 		$id,
-	)}" AND owner = "{$db->real_escape_string($userId)}";
+	)}" AND owner = "{$db->real_escape_string($userRes->data['id'])}";
 	SQL;
 
 	$res = $db->query($query);

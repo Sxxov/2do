@@ -13,12 +13,14 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
-$userId = (new Authenticator())->getSessionUser();
+$userRes = (new Authenticator())->getSessionUser();
 
 try {
 	$res = $db->query(
 		<<<SQL
-		SELECT * FROM notes WHERE owner = "{$db->real_escape_string($userId)}";
+		SELECT * FROM notes WHERE owner = "{$db->real_escape_string(
+			$userRes->data['id'],
+		)}";
 		SQL
 		,
 	);
