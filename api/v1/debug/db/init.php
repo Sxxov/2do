@@ -44,4 +44,20 @@ $db->query(
 	,
 );
 
+$db->query(
+	<<<SQL
+		CREATE TABLE notes (
+			todo_id VARCHAR(255) NOT NULL,
+				PRIMARY KEY (todo_id),
+			title VARCHAR(255) NOT NULL,
+			owner VARCHAR(255) NOT NULL,
+				FOREIGN KEY (owner) REFERENCES users(user_id),
+			description TEXT(65535) NOT NULL,
+			dateCreated DATETIME,
+			dateModified DATETIME
+		);
+	SQL
+	,
+);
+
 return (new ResOk([]))->echo();
