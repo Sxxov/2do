@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = " ";
-$dbname = "reminders";
+$dbname = "2do";
 
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -14,14 +14,12 @@ if ($conn->connect_error) {
 
 
     $re_title = $_POST["re_title"];
-    $re_year = $_POST["re_year"];
-    $re_month = $_POST["re_month"];
     $re_date = $_POST["re_date"];
-    $re_hour = $_POST["re_hour"];
-    $re_minute = $_POST["re_minute"];
+    $re_time = $_POST["re_time"];
 
 
-    $sql = "INSERT INTO reminders (re_title, re_year, re_month, re_date, re_hour, re_minute) VALUES ('$re_title', '$re_year', '$re_month', '$re_date', '$re_hour', '$re_minute')";
+
+    $sql = "INSERT INTO reminders (re_title, re_date, re_time) VALUES ('$re_time', '$re_date', '$re_time')";
 
 
     if ($conn->query($sql) === TRUE) {
