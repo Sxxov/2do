@@ -13,13 +13,13 @@ $db->query(
 );
 $db->query(
 	<<<SQL
-		DROP TABLE IF EXISTS `users`;
+		DROP TABLE IF EXISTS `notes`;
 	SQL
 	,
 );
 $db->query(
 	<<<SQL
-		DROP TABLE IF EXISTS `notes`;
+		DROP TABLE IF EXISTS `users`;
 	SQL
 	,
 );
