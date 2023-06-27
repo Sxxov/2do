@@ -12,7 +12,7 @@
                 $data = //json_decode(file_get_contents('php://input'), true);
             
                 // Insert the task into the database
-                $stmt = prepare("INSERT INTO reminder (remind_title, description, due_date) VALUES (?, ?, ?)");
+                $stmt = prepare("INSERT INTO reminders (re_title, description, due_date) VALUES (?, ?, ?)");
                 $stmt->execute([$data['remind_title'], $data['description'], $data['due_date']]);
             
                 // Return a success response
@@ -24,7 +24,7 @@
         public function getReminder(){
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 // Retrieve all task reminders from the database
-                $stmt = query("SELECT * FROM reminder");
+                $stmt = query("SELECT * FROM reminders");
                 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
                 // Return the task reminders as JSON
@@ -34,21 +34,21 @@
 
         public function editReminder(){
             // Handle task reminder update
-            if ($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($_GET['remind_id'])) {
-                $taskId = $_GET['remind_id'];
+            if ($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($_GET['reminder_id'])) {
+                $taskId = $_GET['reminder_id'];
 
                 // Retrieve task data from the request body
                 $data = json_decode(file_get_contents('php://input'), true);
 
                 // Check if the task exists
-                $stmt = prepare("SELECT * FROM reminder WHERE remind_id = ?");
+                $stmt = prepare("SELECT * FROM reminders WHERE reminder_id = ?");
                 $stmt->execute([$taskId]);
                 $task = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($task) {
                     // Update the task in the database
-                    $stmt = prepare("UPDATE reminder SET remind_title = ?, description = ?, due_date = ? WHERE remind_id = ?");
-                    $stmt->execute([$data['remind_title'], $data['description'], $data['due_date'], $taskId]);
+                    $stmt = prepare("UPDATE reminders SET re_title = ?, description = ?, due_date = ? WHERE remind_id = ?");
+                    $stmt->execute([$data['reminder_title'], $data['description'], $data['due_date'], $taskId]);
 
                     // Return a success response
                     http_response_code(200);
@@ -67,13 +67,13 @@
                 $taskId = $_GET['id'];
 
                 // Check if the task exists
-                $stmt = prepare("SELECT * FROM reminder WHERE id = ?");
+                $stmt = prepare("SELECT * FROM reminders WHERE id = ?");
                 $stmt->execute([$taskId]);
                 $task = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($task) {
                     // Delete the task from the database
-                    $stmt = prepare("DELETE FROM reminder WHERE id = ?");
+                    $stmt = prepare("DELETE FROM reminders WHERE id = ?");
                     $stmt->execute([$taskId]);
 
                     // Return a success response
@@ -93,7 +93,7 @@
                 $oneDayFromNow = date('Y-m-d H:i:s', strtotime('+1 Day'));
             
                 // Retrieve the task reminders that are not completed and due within one week
-                $stmt = prepare("SELECT * FROM reminder WHERE due_date < ? AND completed = 0");
+                $stmt = prepare("SELECT * FROM reminders WHERE due_date < ? AND completed = 0");
                 $stmt->execute([$oneDayFromNow]);
                 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
