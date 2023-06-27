@@ -14,16 +14,21 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
+$body = file_get_contents('php://input');
+$in = json_decode($body);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!isset($in->id) || !isset($in->title) || !isset($in->description)) {
+	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-    $re_id = $_POST["re_id"];
+$userRes = (new Authenticator())->getSessionUser();
+
+
+    $re_id = $_POST["reminder_id"];
     $re_title = $_POST["re_title"];
     $re_datetime = $_POST["re_datetime"];
 
-    $sql = "UPDATE reminders SET re_title ='$re_title', re_date ='$re_datetime' WHERE re_id = $re_id";
+    $sql = "UPDATE reminders SET re_title ='$re_title', re_datetime ='$re_datetime' WHERE reminder_id = $re_id";
 
     if ($conn->query($sql) === TRUE) {
         echo "Data inserted successfully";

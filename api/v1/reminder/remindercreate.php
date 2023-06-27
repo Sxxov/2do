@@ -14,9 +14,14 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$body = file_get_contents('php://input');
+$in = json_decode($body);
+
+if (!isset($in->title) || !isset($in->description)) {
+	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
+
+$userRes = (new Authenticator())->getSessionUser();
 
 
     $re_title = $_POST["re_title"];

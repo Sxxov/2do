@@ -13,24 +13,27 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$body = file_get_contents('php://input');
+$in = json_decode($body);
+$userRes = (new Authenticator())->getSessionUser();
+$id = $in->id;
+
+if (!isset($in->id)) {
+	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["row_id"])) {
 
-    $sql = "DELETE FROM reminders WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
+    $rowId = $_POST["row_id"];
 
-    if ($stmt->affected_rows > 0) {
-        echo "Reminder deleted successfully.";
+    $sql = "DELETE FROM reminders WHERE reminder_id = $rowId";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "Row deleted successfully.";
     } else {
-        echo "Failed to delete reminder.";
+        echo "Error deleting row: " . $conn->error;
     }
 }
 // Close the database connection
 $conn->close();
-?>
+?>  

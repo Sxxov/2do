@@ -25,7 +25,7 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    $sql = "UPDATE reminders SET re_done = true WHERE re_datetimee = '$currentDateTime'";
+    $sql = "UPDATE reminders SET re_done = true WHERE re_datetime = '$currentDateTime'";
     echo "<p>Event: " . $row['re_title'] . "</p>";
     echo "<p>Datetime: " . $row['re_datetime'] . "</p>";
 } else {
