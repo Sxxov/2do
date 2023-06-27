@@ -29,4 +29,19 @@ $db->query(
 	,
 );
 
+$db->query(
+	<<<SQL
+		CREATE TABLE reminders (
+			reminder_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			re_title VARCHAR(255) NOT NULL,
+			re_year INT(4) NOT NULL,
+			re_month VARCHAR(10) NOT NULL,
+			re_date INT(2) NOT NULL,
+			re_hour INT(2) NOT NULL,
+			re_minute INT(2) NOT NULL,
+		);
+	SQL
+	,
+);
+
 return (new ResOk([]))->echo();
