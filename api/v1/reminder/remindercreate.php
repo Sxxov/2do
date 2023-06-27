@@ -12,14 +12,7 @@ use api\v1\lib\note\Note;
 use DateTime;
 use mysqli_sql_exception;
 
-$servername = "localhost";
-$username = "root";
-$password = " ";
-$dbname = "2do";
-
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
+$db = Db::connect(DbInfo::getApp());
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -27,12 +20,11 @@ if ($conn->connect_error) {
 
 
     $re_title = $_POST["re_title"];
-    $re_date = $_POST["re_date"];
-    $re_time = $_POST["re_time"];
+    $re_datetime = $_POST["re_datetime"];
 
 
 
-    $sql = "INSERT INTO reminders (re_title, re_date, re_time) VALUES ('$re_time', '$re_date', '$re_time')";
+    $sql = "INSERT INTO reminders (re_title, re_datetime) VALUES ('$re_title', '$re_datetime')";
 
 
     if ($conn->query($sql) === TRUE) {

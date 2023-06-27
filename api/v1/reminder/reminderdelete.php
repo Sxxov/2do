@@ -1,5 +1,4 @@
 <?php
-
 namespace api\v1\lib\reminder;
 
 use api\v1\lib\auth\Authenticator;
@@ -14,23 +13,24 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
-
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-    $re_id = $_POST["re_id"];
-    $re_title = $_POST["re_title"];
-    $re_datetime = $_POST["re_datetime"];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id = $_POST['id'];
 
-    $sql = "UPDATE reminders SET re_title ='$re_title', re_date ='$re_datetime' WHERE re_id = $re_id";
+    $sql = "DELETE FROM reminders WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
 
-    if ($conn->query($sql) === TRUE) {
-        echo "Data inserted successfully";
+    if ($stmt->affected_rows > 0) {
+        echo "Reminder deleted successfully.";
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Failed to delete reminder.";
     }
-
-
+}
+// Close the database connection
 $conn->close();
 ?>
