@@ -17,15 +17,13 @@ $db = Db::connect(DbInfo::getApp());
 $body = file_get_contents('php://input');
 $in = json_decode($body);
 
-if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
+if (!isset($in->title) || !isset($in->description)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
 $userId = (new Authenticator())->getSessionUser();
 
-$datetime = new DateTime();
-$dateCreated = $datetime->format('Y-m-d H:i:s');
-
+$dateCreated = (new DateTime())->format('Y-m-d H:i:s');
 $note = new Note(
 	id: uniqid(),
 	title: $in->title,
@@ -46,12 +44,12 @@ try {
 			dateModified
 		)
 		VALUES (
-			"{$note->id}",
+			"{$db->real_escape_string($note->id)}",
 			"{$db->real_escape_string($note->title)}",
-			"{$note->owner}",
+			"{$db->real_escape_string($note->owner)}",
 			"{$db->real_escape_string($note->description)}",
-			"{$note->$dateCreated}",
-			"{$note->$dateModified}"
+			"{$db->real_escape_string($note->$dateCreated)}",
+			"{$db->real_escape_string($note->$dateModified)}"
 		);
 		SQL
 		,

@@ -15,23 +15,23 @@ $db = Db::connect(DbInfo::getApp());
 $body = file_get_contents('php://input');
 $in = json_decode($body);
 
-if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
+if (!isset($in->id)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
 $userId = (new Authenticator())->getSessionUser();
+$id = $in->id;
 
 try {
 	$query = <<<SQL
-	    DELETE FROM notes WHERE todo_id = "{$db->real_escape_string($id)}";
+	DELETE FROM notes WHERE todo_id = "{$db->real_escape_string(
+		$id,
+	)}" AND owner = "{$db->real_escape_string($userId)}";
 	SQL;
 
-	$db->query($query);
+	$res = $db->query($query);
 
-	// Check if the deletion was successful
-	if ($db->affected_rows > 0) {
-		return new ResOk('Note deleted successfully');
-	} else {
+	if ($res->num_rows <= 0) {
 		return (new ResErr(
 			ResErrCodes::NOTE_DELETE_ERROR,
 			message: 'Failed to delete note',
@@ -44,4 +44,6 @@ try {
 		detail: $err,
 	))->echo();
 }
+
+return (new ResOk([]))->echo();
 

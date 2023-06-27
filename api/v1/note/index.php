@@ -16,7 +16,7 @@ $db = Db::connect(DbInfo::getApp());
 $body = file_get_contents('php://input');
 $in = json_decode($body);
 
-if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
+if (!isset($in->id)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
@@ -32,6 +32,7 @@ try {
 	);
 
 	$row = $res->fetch_assoc();
+
 	$note = new Note(
 		id: $row['user_id'],
 		title: $row['title'],

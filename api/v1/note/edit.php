@@ -17,47 +17,47 @@ $db = Db::connect(DbInfo::getApp());
 $body = file_get_contents('php://input');
 $in = json_decode($body);
 
-if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
+if (!isset($in->id) || !isset($in->title) || !isset($in->description)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
 $userId = (new Authenticator())->getSessionUser();
 
+$id = $in->id;
 $updatedTitle = $in->title;
 $updatedDescription = $in->description;
-$datetime = new DateTime();
-$dateModified = $datetime->format('Y-m-d H:i:s');
-$id = $in->id;
+$dateModified = (new DateTime())->format('Y-m-d H:i:s');
 
 try {
-	$query = <<<SQL
+	$res = $db->query(
+		<<<SQL
 		UPDATE notes
 		SET
 			title = "{$db->real_escape_string($updatedTitle)}",
 			description = "{$db->real_escape_string($updatedDescription)}",
 			dateModified = "{$db->real_escape_string($dateModified)}"
 		WHERE todo_id = "{$db->real_escape_string($id)}";
-	SQL;
+		SQL
+		,
+	);
 
-	$db->query($query);
-
-	// Check if the update was successful
-	if ($db->affected_rows > 0) {
-		$note = new Note(
-			id: $row['user_id'],
-			title: $row['title'],
-			owner: $row['owner'],
-			description: $row['description'],
-			dateCreated: $row['dateCreated'],
-			dateModified: $row['dateModified'],
-		);
-		return (new ResOk('Note updated successfully'))->echo();
-	} else {
+	if ($res->num_rows <= 0) {
 		return (new ResErr(
 			ResErrCodes::NOTE_DISPLAY_ERROR,
 			message: 'Failed to edit note',
 		))->echo();
 	}
+
+	$row = $res->fetch_assoc();
+
+	$note = new Note(
+		id: $row['user_id'],
+		title: $row['title'],
+		owner: $row['owner'],
+		description: $row['description'],
+		dateCreated: $row['dateCreated'],
+		dateModified: $row['dateModified'],
+	);
 } catch (mysqli_sql_exception $err) {
 	return (new ResErr(
 		ResErrCodes::NOTE_DISPLAY_ERROR,

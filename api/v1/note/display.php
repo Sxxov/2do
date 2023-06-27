@@ -13,13 +13,6 @@ use mysqli_sql_exception;
 
 $db = Db::connect(DbInfo::getApp());
 
-$body = file_get_contents('php://input');
-$in = json_decode($body);
-
-if (!isset($in->username) || !isset($in->password) || !isset($in->email)) {
-	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
-}
-
 $userId = (new Authenticator())->getSessionUser();
 
 try {
