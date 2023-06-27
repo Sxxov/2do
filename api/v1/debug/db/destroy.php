@@ -17,5 +17,11 @@ $db->query(
 	SQL
 	,
 );
+$db->query(
+	<<<SQL
+		DROP TABLE IF EXISTS `notes`;
+	SQL
+	,
+);
 
-return ResOk::send([]);
+return (new ResOk([]))->echo();

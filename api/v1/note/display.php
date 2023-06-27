@@ -30,8 +30,8 @@ try {
 			title: $row['title'],
 			owner: $row['owner'],
 			description: $row['description'],
-			dateCreated: $row['dateCreated'],
-			dateModified: $row['dateModified'],
+			dateCreated: $row['date_created'],
+			dateModified: $row['date_modified'],
 		);
 
 		$notes[] = $note;

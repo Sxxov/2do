@@ -53,8 +53,8 @@ $db->query(
 			owner VARCHAR(255) NOT NULL,
 				FOREIGN KEY (owner) REFERENCES users(user_id),
 			description TEXT(65535) NOT NULL,
-			dateCreated DATETIME,
-			dateModified DATETIME
+			date_created DATETIME,
+			date_modified DATETIME
 		);
 	SQL
 	,
