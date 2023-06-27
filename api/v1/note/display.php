@@ -37,11 +37,7 @@ try {
 		$notes[] = $note;
 	}
 } catch (mysqli_sql_exception $err) {
-	return (new ResErr(
-		ResErrCodes::NOTE_DISPLAY_ERROR,
-		message: 'Failed to display note',
-		detail: $err,
-	))->echo();
+	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
 }
 
 return (new ResOk($notes))->echo();

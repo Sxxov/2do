@@ -55,11 +55,7 @@ try {
 		,
 	);
 } catch (mysqli_sql_exception $err) {
-	return (new ResErr(
-		ResErrCodes::NOTE_CREATION_ERROR,
-		message: 'Failed to create note',
-		detail: $err,
-	))->echo();
+	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
 }
 
 return (new ResOk($note))->echo();

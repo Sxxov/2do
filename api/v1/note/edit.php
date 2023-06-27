@@ -36,15 +36,17 @@ try {
 			title = "{$db->real_escape_string($updatedTitle)}",
 			description = "{$db->real_escape_string($updatedDescription)}",
 			dateModified = "{$db->real_escape_string($dateModified)}"
-		WHERE todo_id = "{$db->real_escape_string($id)}";
+		WHERE todo_id = "{$db->real_escape_string(
+			$id,
+		)}" AND owner = "{$db->real_escape_string($userId)}";
 		SQL
 		,
 	);
 
 	if ($res->num_rows <= 0) {
 		return (new ResErr(
-			ResErrCodes::NOTE_DISPLAY_ERROR,
-			message: 'Failed to edit note',
+			ResErrCodes::NOTE_NOT_FOUND,
+			message: 'Attempted to edit a note that does not exist',
 		))->echo();
 	}
 
@@ -59,11 +61,7 @@ try {
 		dateModified: $row['dateModified'],
 	);
 } catch (mysqli_sql_exception $err) {
-	return (new ResErr(
-		ResErrCodes::NOTE_DISPLAY_ERROR,
-		message: 'Failed to edit note',
-		detail: $err,
-	))->echo();
+	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
 }
 
 return (new ResOk($note))->echo();

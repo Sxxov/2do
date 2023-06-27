@@ -33,16 +33,12 @@ try {
 
 	if ($res->num_rows <= 0) {
 		return (new ResErr(
-			ResErrCodes::NOTE_DELETE_ERROR,
-			message: 'Failed to delete note',
+			ResErrCodes::NOTE_NOT_FOUND,
+			message: 'Attempted to delete a note that does not exist',
 		))->echo();
 	}
 } catch (mysqli_sql_exception $err) {
-	return (new ResErr(
-		ResErrCodes::NOTE_DELETE_ERROR,
-		message: 'Failed to delete note',
-		detail: $err,
-	))->echo();
+	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
 }
 
 return (new ResOk([]))->echo();
