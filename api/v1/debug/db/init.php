@@ -7,7 +7,7 @@ use api\v1\lib\db\DbInfo;
 $db = Db::connectOrCreate(DbInfo::getApp());
 $db->query(
 	<<<SQL
-		CREATE TABLE users (
+		CREATE TABLE IF NOT EXISTS users (
 			user_id VARCHAR(255) NOT NULL,
 				PRIMARY KEY (user_id),
 			username VARCHAR(255) NOT NULL,
@@ -19,7 +19,7 @@ $db->query(
 );
 $db->query(
 	<<<SQL
-		CREATE TABLE sessions (
+		CREATE TABLE IF NOT EXISTS sessions (
 			session_id VARCHAR(255) NOT NULL,
 				PRIMARY KEY (session_id),
 			user_id VARCHAR(255) NOT NULL,
@@ -31,14 +31,14 @@ $db->query(
 
 $db->query(
 	<<<SQL
-		CREATE TABLE reminders (
+		CREATE TABLE IF NOT EXISTS reminders (
 			reminder_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 			re_title VARCHAR(255) NOT NULL,
 			re_year INT(4) NOT NULL,
 			re_month VARCHAR(10) NOT NULL,
 			re_date INT(2) NOT NULL,
 			re_hour INT(2) NOT NULL,
-			re_minute INT(2) NOT NULL,
+			re_minute INT(2) NOT NULL
 		);
 	SQL
 	,
@@ -46,7 +46,7 @@ $db->query(
 
 $db->query(
 	<<<SQL
-		CREATE TABLE notes (
+		CREATE TABLE IF NOT EXISTS notes (
 			todo_id VARCHAR(255) NOT NULL,
 				PRIMARY KEY (todo_id),
 			title VARCHAR(255) NOT NULL,
