@@ -15,23 +15,23 @@ spl_autoload_register(function ($class) {
 	}
 });
 
-$request_uri = preg_replace(
+$requestUri = preg_replace(
 	'/^\//',
 	'',
 	preg_replace('/\/$/', '', $_SERVER['REQUEST_URI']),
 );
 
 try {
-	if ($request_uri === '/') {
+	if ($requestUri === '') {
 		require_once 'index.php';
-	} elseif (is_file($request_uri)) {
-		require_once $request_uri;
-	} elseif (is_file($request_uri . '.php')) {
-		require_once $request_uri . '.php';
-	} elseif (is_file($request_uri . '/index.php')) {
-		require_once $request_uri . '/index.php';
-	} elseif (is_file($request_uri . '/index.html')) {
-		require_once $request_uri . '/index.html';
+	} elseif (is_file($requestUri)) {
+		require_once $requestUri;
+	} elseif (is_file($requestUri . '.php')) {
+		require_once $requestUri . '.php';
+	} elseif (is_file($requestUri . '/index.php')) {
+		require_once $requestUri . '/index.php';
+	} elseif (is_file($requestUri . '/index.html')) {
+		require_once $requestUri . '/index.html';
 	} else {
 		require_once '404.php';
 	}

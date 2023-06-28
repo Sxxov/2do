@@ -31,7 +31,11 @@ try {
 
 	$res = $db->query($query);
 
-	if ($res->num_rows <= 0) {
+	if (!$res) {
+		return (new ResErr(ResErrCodes::UNKNOWN, detail: $db->error))->echo();
+	}
+
+	if ($db->affected_rows <= 0) {
 		return (new ResErr(
 			ResErrCodes::NOTE_NOT_FOUND,
 			message: 'Attempted to delete a note that does not exist',

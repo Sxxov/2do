@@ -39,11 +39,6 @@ export class AuthSignInRoute extends X {
 									);
 								}
 							}}"
-							@formdata="${(/** @type {FormDataEvent} */ e) =>
-								Input.funnelChildrenValuesInto(
-									/** @type {HTMLFormElement} */ (e.target),
-									e.formData,
-								)}"
 							@submit="${async (/** @type {SubmitEvent} */ e) => {
 								e.preventDefault();
 

@@ -1,3 +1,5 @@
+import { boolT } from '../../../lib/common/lit/runtime/types/boolT.js';
+import { numT } from '../../../lib/common/lit/runtime/types/numT.js';
 import { objT } from '../../../lib/common/lit/runtime/types/objT.js';
 import { strT } from '../../../lib/common/lit/runtime/types/strT.js';
 import { X, html, css, spread } from '../../../lib/common/x/X.js';
@@ -11,6 +13,9 @@ export class NoteItem extends X {
 	static properties = {
 		title: strT,
 		description: strT,
+		done: boolT,
+		priority: numT,
+		placeholder: boolT,
 	};
 
 	constructor() {
@@ -18,18 +23,27 @@ export class NoteItem extends X {
 
 		/** @type {string} */ this.title;
 		/** @type {string} */ this.description;
+		/** @type {boolean} */ this.done;
+		/** @type {boolean} */ this.placeholder;
 	}
 
 	/** @override */
 	render() {
 		return html`
 			<x-button
-				${spread(Button.variants.secondary)}
+				${spread(
+					this.done
+						? Button.variants.transparent
+						: Button.variants.secondary,
+				)}
 				${spread(Button.variants.shadowSm)}
-				${spread(Button.variants.flatRight)}
+				${spread(this.placeholder ? {} : Button.variants.flatRight)}
 				width="100%"
 				height="auto"
+				?disabled=${this.placeholder}
 				@click=${() => {
+					if (this.placeholder) return;
+
 					this.dispatchEvent(
 						new CustomEvent('edit', {
 							bubbles: true,
@@ -41,12 +55,18 @@ export class NoteItem extends X {
 				<div class="content" slot="content">
 					<div class="info">
 						<p class="title">${this.title}</p>
-						<p class="description">${this.description}</p>
+						${this.description
+							? html`<p class="description">
+									${this.description}
+							  </p>`
+							: ''}
 					</div>
 				</div>
 			</x-button>
-			<div class="actions">
-				<!-- <x-button
+			${this.placeholder
+				? ''
+				: html`<div class="actions">
+							<!-- <x-button
 					${spread(Button.variants.secondary)}
 					${spread(Button.variants.shadowSm)}
 					${spread(Button.variants.flat)}
@@ -54,41 +74,49 @@ export class NoteItem extends X {
 					height="100%"
 					><x-i>edit</x-i></x-button
 				> -->
-				<x-button
-					${spread(Button.variants.secondary)}
-					${spread(Button.variants.shadowSm)}
-					${spread(Button.variants.flatLeft)}
-					roundness="28px"
-					height="100%"
-					@click=${() => {
-						this.dispatchEvent(
-							new CustomEvent('done', {
-								bubbles: true,
-								composed: true,
-							}),
-						);
-					}}
-					><x-i>task_alt</x-i></x-button
-				>
-			</div>
-			<div class="aux">
-				<x-button
-					${spread(Button.variants.transparent)}
-					${spread(Button.variants.shadowNone)}
-					roundness="28px"
-					padding="16px"
-					height="100%"
-					@click=${() => {
-						this.dispatchEvent(
-							new CustomEvent('delete', {
-								bubbles: true,
-								composed: true,
-							}),
-						);
-					}}
-					><x-i>delete_outline</x-i></x-button
-				>
-			</div>
+							<x-button
+								${spread(
+									this.done
+										? Button.variants.transparent
+										: Button.variants.secondary,
+								)}
+								${spread(Button.variants.shadowSm)}
+								${spread(Button.variants.flatLeft)}
+								roundness="28px"
+								height="100%"
+								@click=${() => {
+									this.dispatchEvent(
+										new CustomEvent('done', {
+											bubbles: true,
+											composed: true,
+										}),
+									);
+								}}
+								><x-i
+									>${this.done
+										? 'check_circle'
+										: 'radio_button_unchecked'}</x-i
+								></x-button
+							>
+						</div>
+						<div class="aux">
+							<x-button
+								${spread(Button.variants.transparent)}
+								${spread(Button.variants.shadowNone)}
+								roundness="28px"
+								padding="16px"
+								height="100%"
+								@click=${() => {
+									this.dispatchEvent(
+										new CustomEvent('delete', {
+											bubbles: true,
+											composed: true,
+										}),
+									);
+								}}
+								><x-i>delete_outline</x-i></x-button
+							>
+						</div>`}
 		`;
 	}
 

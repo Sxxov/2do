@@ -35,7 +35,7 @@ $db->query(
 			reminder_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 			re_title VARCHAR(255) NOT NULL,
 			re_datetime DATE NOT NULL,
-			re_done BOOLEAN NOT NULL,
+			re_done BOOLEAN NOT NULL
 		);
 	SQL
 	,
@@ -50,8 +50,10 @@ $db->query(
 			owner VARCHAR(255) NOT NULL,
 				FOREIGN KEY (owner) REFERENCES users(user_id),
 			description TEXT(65535) NOT NULL,
-			date_created DATETIME,
-			date_modified DATETIME
+			date_created DATETIME NOT NULL,
+			date_modified DATETIME NOT NULL,
+			done BOOLEAN NOT NULL,
+			priority INT NOT NULL
 		);
 	SQL
 	,

@@ -25,6 +25,10 @@ try {
 		,
 	);
 
+	if (!$res) {
+		return (new ResErr(ResErrCodes::UNKNOWN, detail: $db->error))->echo();
+	}
+
 	$notes = [];
 	while ($row = $res->fetch_assoc()) {
 		$note = new Note(
@@ -34,6 +38,8 @@ try {
 			description: $row['description'],
 			dateCreated: $row['date_created'],
 			dateModified: $row['date_modified'],
+			done: (bool) $row['done'],
+			priority: $row['priority'],
 		);
 
 		$notes[] = $note;

@@ -42,6 +42,8 @@ try {
 		description: $row['description'],
 		dateCreated: $row['date_created'],
 		dateModified: $row['date_modified'],
+		done: (bool) $row['done'],
+		priority: $row['priority'],
 	);
 } catch (mysqli_sql_exception $err) {
 	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();

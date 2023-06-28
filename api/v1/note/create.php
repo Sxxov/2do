@@ -31,9 +31,11 @@ $note = new Note(
 	description: $in->description,
 	dateCreated: $dateCreated,
 	dateModified: $dateCreated,
+	done: false,
+	priority: 0,
 );
 try {
-	$db->query(
+	$res = $db->query(
 		<<<SQL
 		INSERT INTO notes (
 			todo_id,
@@ -41,7 +43,9 @@ try {
 			owner,
 			description,
 			date_created,
-			date_modified
+			date_modified,
+			done,
+			priority
 		)
 		VALUES (
 			"{$db->real_escape_string($note->id)}",
@@ -49,11 +53,17 @@ try {
 			"{$db->real_escape_string($note->owner)}",
 			"{$db->real_escape_string($note->description)}",
 			"{$db->real_escape_string($note->dateCreated)}",
-			"{$db->real_escape_string($note->dateModified)}"
+			"{$db->real_escape_string($note->dateModified)}",
+			"{$db->real_escape_string((int) $note->done)}",
+			"{$db->real_escape_string($note->priority)}"
 		);
 		SQL
 		,
 	);
+
+	if (!$res) {
+		return (new ResErr(ResErrCodes::UNKNOWN, detail: $db->error))->echo();
+	}
 } catch (mysqli_sql_exception $err) {
 	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
 }
