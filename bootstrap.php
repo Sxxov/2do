@@ -1,8 +1,9 @@
 <?php
 
-use api\v1\lib\common\HttpCodes;
 use api\v1\lib\common\ResErr;
 use api\v1\lib\common\ResErrCodes;
+
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 spl_autoload_register(function ($class) {
 	$baseDir = __DIR__;

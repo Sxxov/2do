@@ -221,7 +221,7 @@ class Authenticator {
 			);
 
 			if ($row->num_rows <= 0) {
-				return new ResErr(ResErrCodes::UNAUTHORISED);
+				return new ResErr(ResErrCodes::FORBIDDEN);
 			}
 
 			$userId = $row->fetch_assoc()['user_id'];
@@ -242,7 +242,7 @@ class Authenticator {
 			);
 
 			if ($row->num_rows <= 0) {
-				return new ResErr(ResErrCodes::UNAUTHORISED);
+				return new ResErr(ResErrCodes::FORBIDDEN);
 			}
 
 			$data = $row->fetch_assoc();

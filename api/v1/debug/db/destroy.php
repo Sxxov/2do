@@ -13,9 +13,15 @@ $db->query(
 );
 $db->query(
 	<<<SQL
+		DROP TABLE IF EXISTS `notes`;
+	SQL
+	,
+);
+$db->query(
+	<<<SQL
 		DROP TABLE IF EXISTS `users`;
 	SQL
 	,
 );
 
-return ResOk::send([]);
+return (new ResOk([]))->echo();
