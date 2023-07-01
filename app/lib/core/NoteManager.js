@@ -116,4 +116,59 @@ export class NoteManager {
 
 		return [data.data, undefined];
 	}
+
+	async getNotes() {
+		let data;
+		try {
+			const res = await fetch('/api/v1/note/all');
+
+			data = /**
+			 * @type {ApiAny<
+			 * 	{
+			 * 		id: string;
+			 * 		title: string;
+			 * 		description: string;
+			 * 		done: boolean;
+			 * 		priority: import('./lib/core/NoteManager.js').NotePriority;
+			 * 		owner: string;
+			 * 		dateCreated: string;
+			 * 		dateModified: string;
+			 * 		peepeepoopoo: 'peepeepoopoo';
+			 * 	}[]
+			 * >}
+			 */ (await res.json());
+		} catch (err) {
+			return [
+				undefined,
+				[new Error('Network error', {
+					cause: err,
+				})],
+			];
+		}
+
+		if (!res.ok && !json.ok)
+			Toaster.toast(
+				json.error.message || 'Failed to fetch notes',
+				Toast.variants.error,
+			);
+		else if (res.ok && json.ok)
+			return json.data.map((note) => {
+				const dateCreated = new Date(note.dateCreated);
+				const dateModified = new Date(note.dateModified);
+
+				return {
+					id: note.id,
+					title: note.title,
+					description: note.description,
+					done: note.done,
+					priority: note.priority,
+					owner: user,
+					dateCreated,
+					dateModified,
+					peepeepoopoo: note.peepeepoopoo,
+				};
+			});
+
+		return [];
+	}
 }
