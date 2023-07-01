@@ -18,10 +18,10 @@ export class AppCtaFragment extends X {
 			>
 				<x-i>refresh</x-i>
 			</x-button>
-			<x-button ${spread(Button.variants.primary)}>
+			<!-- <x-button ${spread(Button.variants.primary)}>
 				<x-i slot="left">add</x-i>
 				Note
-			</x-button>
+			</x-button> -->
 		`;
 	}
 }

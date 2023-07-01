@@ -1,3 +1,4 @@
+import { AuthManager } from '../../app/lib/core/AuthManager.js';
 import { X, css, html, spread } from '../../lib/common/x/X.js';
 import { Button } from '../../lib/components/Button.js';
 import '../../lib/components/Input.js';
@@ -46,94 +47,21 @@ export class AuthSignInRoute extends X {
 									/** @type {HTMLFormElement} */ (e.target),
 								);
 
-								let ok = true;
-
 								const username = String(form.get('username'));
 								const password = String(form.get('password'));
 
-								if (username) {
-									if (
-										username.length < 3 ||
-										username.length > 20
-									)
-										Toaster.toast(
-											'Username must be between 3 to 20 characters',
-											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please enter a username',
-										Toast.variants.error,
-									),
-										(ok = false);
-
-								if (password) {
-									if (
-										password.length < 8 ||
-										password.length > 255
-									)
-										Toaster.toast(
-											'Password must be longer than 8 characters',
-											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please enter a password',
-										Toast.variants.error,
-									),
-										(ok = false);
-
-								if (!ok) return;
-
-								let data;
-								try {
-									const res = await fetch(
-										'/api/v1/auth/sign-in.php',
-										{
-											method: 'POST',
-											headers: {
-												'Content-Type':
-													'application/json',
-											},
-											body: JSON.stringify({
-												username: form.get('username'),
-												password: form.get('password'),
-											}),
-										},
-									);
-									data = await res.json();
-								} catch {
-									Toaster.toast(
-										'Network error',
-										Toast.variants.error,
+								const [res, err] =
+									await AuthManager.instance.signIn(
+										username,
+										password,
 									);
 
-									return;
-								}
-
-								if (!data.ok) {
-									switch (data.err.code) {
-										case 'SIGN_IN_USER_NOT_FOUND':
-											Toaster.toast(
-												'User not found',
-												Toast.variants.error,
-											);
-											break;
-										case 'SIGN_IN_INVALID_CREDENTIALS':
-											Toaster.toast(
-												'Wrong username or password',
-												Toast.variants.error,
-											);
-											break;
-										default:
-											Toaster.toast(
-												`Failed to sign-in (${data.err.code})`,
-												Toast.variants.error,
-											);
-									}
-
+								if (err) {
+									for (const { message } of err)
+										Toaster.toast(
+											message,
+											Toast.variants.error,
+										);
 									return;
 								}
 
@@ -142,7 +70,8 @@ export class AuthSignInRoute extends X {
 									Toast.variants.ok,
 								);
 
-								location.href = data.redirect;
+								if (res.redirect != null)
+									location.href = res.redirect;
 							}}"
 						>
 							<x-input

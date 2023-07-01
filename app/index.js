@@ -18,38 +18,8 @@ import { Input } from '../lib/components/Input.js';
 import '../lib/components/Dialog.js';
 import { boolT } from '../lib/common/lit/runtime/types/boolT.js';
 import { arrT } from '../lib/common/lit/runtime/types/arrT.js';
-
-/**
- * @typedef {{
- * 	id: string;
- * 	title: string;
- * 	description: string;
- * 	done: boolean;
- * 	priority: NotePriorities;
- * 	owner: string;
- * 	dateCreated: string;
- * 	dateModified: string;
- * 	peepeepoopoo: 'peepeepoopoo';
- * }} NoteRes
- */
-/**
- * @typedef {{
- * 	id: string;
- * 	title: string;
- * 	description: string;
- * 	done: boolean;
- * 	priority: NotePriorities;
- * 	owner: {
- * 		id: string;
- * 		username: string;
- * 		email: string;
- * 		peepeepoopoo: 'peepeepoopoo';
- * 	};
- * 	dateCreated: Date;
- * 	dateModified: Date;
- * 	peepeepoopoo: string;
- * }} Note
- */
+import { NoteSortKinds, NoteSorters } from './lib/core/NoteManager.js';
+import { AuthManager } from './lib/core/AuthManager.js';
 
 export class AppRoute extends X {
 	/**
@@ -69,50 +39,27 @@ export class AppRoute extends X {
 		user: objT(stateT),
 	};
 
-	/** @typedef {(typeof AppRoute)['NoteSortKinds'][keyof (typeof AppRoute)['NoteSortKinds']]} NoteSortKinds */
-	static NoteSortKinds = /** @type {const} */ ({
-		DATE_CREATED: 'date-created',
-		DATE_MODIFIED: 'date-modified',
-		ALPHANUMERIC: 'alphanumeric',
-	});
-
-	/** @typedef {(typeof AppRoute)['NotePriorities'][keyof (typeof AppRoute)['NotePriorities']]} NotePriorities */
-	static NotePriorities = /** @type {const} */ ({
-		NORMAL: 0,
-		IMPORTANT: 1,
-		URGENT: 2,
-	});
-
-	static NoteSorters = {
-		[this.NoteSortKinds.DATE_CREATED]: (
-			/** @type {Note} */ a,
-			/** @type {Note} */ b,
-		) => (a.dateCreated < b.dateCreated ? -1 : 1),
-		[this.NoteSortKinds.DATE_MODIFIED]: (
-			/** @type {Note} */ a,
-			/** @type {Note} */ b,
-		) => (a.dateModified < b.dateModified ? -1 : 1),
-		[this.NoteSortKinds.ALPHANUMERIC]: (
-			/** @type {Note} */ a,
-			/** @type {Note} */ b,
-		) => a.title.localeCompare(b.title),
-	};
-
 	constructor() {
 		super();
 
-		/** @type {Note[] | undefined} */ this.notes;
+		/** @type {import('./lib/core/NoteManager.js').Note[] | undefined} */ this
+			.notes;
 		/** @type {{ title: string; description: string }[]} */ this.notePlaceholders =
 			[];
-		/** @type {Promise<Note[]>} */ this.notesPromise;
+		/** @type {Promise<import('./lib/core/NoteManager.js').Note[]>} */ this
+			.notesPromise;
 		/** @type {1 | -1} */ this.noteSortOrder = -1;
-		/** @type {NoteSortKinds} */ this.noteSortKind =
-			AppRoute.NoteSortKinds.DATE_MODIFIED;
+		/** @type {import('./lib/core/NoteManager.js').NoteSortKind} */ this.noteSortKind =
+			NoteSortKinds.DATE_MODIFIED;
 		/** @type {string} */ this.noteSearchQuery = '';
 		/** @type {boolean} */ this.noteDialogOpen = false;
-		/** @type {Note | undefined} */ this.noteDialogNote;
+		/** @type {import('./lib/core/NoteManager.js').Note | undefined} */ this
+			.noteDialogNote;
 
-		/** @type {Note['owner'] | undefined} */ this.user;
+		/**
+		 * @type {| import('./lib/core/NoteManager.js').Note['owner']
+		 * 	| undefined}
+		 */ this.user;
 	}
 
 	/** @override */
@@ -147,17 +94,31 @@ export class AppRoute extends X {
 		return user.data;
 	}
 
-	/** @returns {Promise<Note[]>} */
+	/** @returns {Promise<import('./lib/core/NoteManager.js').Note[]>} */
 	async #getNotes() {
+		// fake timeout cuz our server is too fast
+		await new Promise((resolve) => void setTimeout(resolve, 500));
+
 		const user = await this.#getUser();
 
-		// fake timeout cuz our server is too fast
-		await new Promise((resolve) => void setTimeout(resolve, 1000));
+		await new Promise((resolve) => void setTimeout(resolve, 500));
+
 		const res = await fetch('/api/v1/note/all');
-		const json =
-			/** @type {import('../lib/common/x/X.js').Res<NoteRes[]>} */ (
-				await res.json()
-			);
+		const json = /**
+		 * @type {ApiAny<
+		 * 	{
+		 * 		id: string;
+		 * 		title: string;
+		 * 		description: string;
+		 * 		done: boolean;
+		 * 		priority: import('./lib/core/NoteManager.js').NotePriority;
+		 * 		owner: string;
+		 * 		dateCreated: string;
+		 * 		dateModified: string;
+		 * 		peepeepoopoo: 'peepeepoopoo';
+		 * 	}[]
+		 * >}
+		 */ (await res.json());
 
 		if (!res.ok && !json.ok)
 			Toaster.toast(
@@ -237,10 +198,10 @@ export class AppRoute extends X {
 		}
 
 		if (!data.ok) {
-			switch (data.err.code) {
+			switch (data.error.code) {
 				default:
 					Toaster.toast(
-						`Failed to create note (${data.err.code})`,
+						`Failed to create note (${data.error.code})`,
 						Toast.variants.error,
 					);
 			}
@@ -254,7 +215,7 @@ export class AppRoute extends X {
 	}
 
 	async #toggleDoneNoteAndToast(
-		/** @type {Note} */ note,
+		/** @type {import('./lib/core/NoteManager.js').Note} */ note,
 		/** @type {boolean} */ done = !note.done,
 	) {
 		const message = done ? 'note as done' : 'note as not done';
@@ -287,7 +248,7 @@ export class AppRoute extends X {
 		// cancel();
 
 		if (!data.ok) {
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'NOTE_NOT_FOUND':
 					Toaster.toast(
 						'Note not found. It may have been deleted by another session.',
@@ -296,7 +257,7 @@ export class AppRoute extends X {
 					break;
 				default:
 					Toaster.toast(
-						`Failed to update note (${data.err.code})`,
+						`Failed to update note (${data.error.code})`,
 						Toast.variants.error,
 					);
 			}
@@ -310,13 +271,13 @@ export class AppRoute extends X {
 	}
 
 	async #editNoteAndToast(
-		/** @type {Note} */ note,
+		/** @type {import('./lib/core/NoteManager.js').Note} */ note,
 		/**
 		 * @type {Partial<{
 		 * 	title: string;
 		 * 	description: string;
 		 * 	done: boolean;
-		 * 	priority: NotePriorities;
+		 * 	priority: import('./lib/core/NoteManager.js').NotePriority;
 		 * }>}
 		 */ { title, description, done, priority },
 	) {
@@ -354,7 +315,7 @@ export class AppRoute extends X {
 		cancel();
 
 		if (!data.ok) {
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'NOTE_NOT_FOUND':
 					Toaster.toast(
 						'Note not found. It may have been deleted by another session.',
@@ -363,7 +324,7 @@ export class AppRoute extends X {
 					break;
 				default:
 					Toaster.toast(
-						`Failed to update note (${data.err.code})`,
+						`Failed to update note (${data.error.code})`,
 						Toast.variants.error,
 					);
 			}
@@ -376,7 +337,9 @@ export class AppRoute extends X {
 		this.#refreshNotes();
 	}
 
-	async #deleteNoteAndToast(/** @type {Note} */ note) {
+	async #deleteNoteAndToast(
+		/** @type {import('./lib/core/NoteManager.js').Note} */ note,
+	) {
 		const { cancel } = Toaster.toast('Deleting note…');
 
 		this.notes?.splice(this.notes.indexOf(note), 1);
@@ -404,7 +367,7 @@ export class AppRoute extends X {
 		cancel();
 
 		if (!data.ok) {
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'NOTE_NOT_FOUND':
 					Toaster.toast(
 						'Note not found. It may have already been deleted',
@@ -413,8 +376,8 @@ export class AppRoute extends X {
 					break;
 				default:
 					Toaster.toast(
-						data.err.message ||
-							`Failed to create note (${data.err.code})`,
+						data.error.message ||
+							`Failed to create note (${data.error.code})`,
 						Toast.variants.error,
 					);
 			}
@@ -425,7 +388,9 @@ export class AppRoute extends X {
 		Toaster.toast('Note deleted', Toast.variants.ok);
 	}
 
-	#getSortedAndFilteredNotes(/** @type {Note[]} */ notes) {
+	#getSortedAndFilteredNotes(
+		/** @type {import('./lib/core/NoteManager.js').Note[]} */ notes,
+	) {
 		return notes
 			.filter(
 				(v) =>
@@ -439,8 +404,7 @@ export class AppRoute extends X {
 			)
 			.sort(
 				(a, b) =>
-					AppRoute.NoteSorters[this.noteSortKind](a, b) *
-					this.noteSortOrder,
+					NoteSorters[this.noteSortKind](a, b) * this.noteSortOrder,
 			);
 		// .sort(
 		// 	(a, b) =>
@@ -462,17 +426,28 @@ export class AppRoute extends X {
 				></x-app-cta-fragment>
 				<div class="content">
 					<div class="heading">
-						<h5>
-							${new Date().getHours() < 4
-								? 'Late nights.'
-								: new Date().getHours() < 12
-								? 'Good morning.'
-								: new Date().getHours() < 18
-								? 'Good afternoon.'
-								: new Date().getHours() < 18
-								? 'Good evening.'
-								: 'Good night.'}
-						</h5>
+						${until(
+							AuthManager.instance
+								.signInFromSession()
+								.then(
+									(res) => html`<h5>
+										${new Date().getHours() < 4
+											? 'Late nights'
+											: new Date().getHours() < 12
+											? 'Good morning'
+											: new Date().getHours() < 18
+											? 'Good afternoon'
+											: new Date().getHours() < 22
+											? 'Good evening'
+											: 'Good night'},
+										${res[0]?.data.username ?? 'User'}.
+									</h5>`,
+								),
+							html`<x-loader-circle
+								height="21px"
+								width="21px"
+							></x-loader-circle>`,
+						)}
 						${until(
 							this.notesPromise.then((notes) => {
 								const count = notes.filter(
@@ -518,21 +493,18 @@ export class AppRoute extends X {
 											{
 												icon: 'today',
 												title: 'Modified',
-												value: AppRoute.NoteSortKinds
-													.DATE_MODIFIED,
+												value: NoteSortKinds.DATE_MODIFIED,
 												selected: true,
 											},
 											{
 												icon: 'today',
 												title: 'Created',
-												value: AppRoute.NoteSortKinds
-													.DATE_CREATED,
+												value: NoteSortKinds.DATE_CREATED,
 											},
 											{
 												icon: 'sort_by_alpha',
 												title: 'Alphabetical',
-												value: AppRoute.NoteSortKinds
-													.ALPHANUMERIC,
+												value: NoteSortKinds.ALPHANUMERIC,
 											},
 										]}
 										@change=${(
@@ -759,6 +731,12 @@ export class AppRoute extends X {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
+				gap: 14px;
+				padding-top: 56px;
+			}
+
+			.content > .heading > h5 {
+				margin: 0;
 			}
 
 			.content > .heading > p {

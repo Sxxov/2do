@@ -39,15 +39,13 @@ class ResErr {
 	public function __toString(): string {
 		return json_encode([
 			'ok' => false,
-			'err' => [
+			'error' => [
 				'code' => $this->code->key(),
 				...isset($this->field) ? ['field' => $this->field] : [],
 				...isset($this->message) ? ['message' => $this->message] : [],
 				...isset($this->detail) ? ['detail' => $this->detail] : [],
-				...isset($this->redirect)
-					? ['redirect' => $this->redirect]
-					: [],
 			],
+			...isset($this->redirect) ? ['redirect' => $this->redirect] : [],
 		]);
 	}
 }
