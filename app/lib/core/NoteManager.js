@@ -17,6 +17,8 @@
  * }} Note
  */
 
+import { AuthManager } from './AuthManager.js';
+
 /** @typedef {OneOf<NoteSortKinds>} NoteSortKind */
 export const NoteSortKinds = /** @type {const} */ ({
 	DATE_CREATED: 'date-created',
@@ -48,9 +50,62 @@ export const NoteSorters = {
 };
 
 export class NoteManager {
-	/** @returns {Promise<ResultStrict<Note>>} */
-	async edit(
-		/** @type {Note} */ note,
+	static instance = new NoteManager();
+
+	async create(
+		/**
+		 * @type {{
+		 * 	title: string;
+		 * 	description: string;
+		 * }}
+		 */ note,
+	) {
+		let data;
+		try {
+			const res = await fetch(`/api/v1/note/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(note),
+			});
+
+			data = await res.json();
+		} catch (err) {
+			return [undefined, [new Error('Network error', { cause: err })]];
+		}
+
+		if (!data.ok) {
+			switch (data.error.code) {
+				case 'INVALID':
+					return [
+						undefined,
+						[
+							new Error(
+								"Attempted to create a note that didn't have all the required props",
+								{ cause: data.error },
+							),
+						],
+					];
+				default:
+					return [
+						undefined,
+						[
+							new Error(
+								data.error.message ??
+									`Failed to create note (${data.error.code})`,
+								{ cause: data.error },
+							),
+						],
+					];
+			}
+		}
+
+		return [data.note, undefined];
+	}
+
+	edit(
+		/** @type {Note} */ src,
 		/**
 		 * @type {Partial<{
 		 * 	title: string;
@@ -60,12 +115,19 @@ export class NoteManager {
 		 * }>}
 		 */ { title, description, done, priority },
 	) {
-		if (title) note.title = title;
-		if (description) note.description = description;
-		if (done) note.done = done;
-		if (priority) note.priority = priority;
-		if (title || description) note.dateModified = new Date();
+		src = { ...src };
 
+		if (title) src.title = title;
+		if (description) src.description = description;
+		if (done) src.done = done;
+		if (priority) src.priority = priority;
+		if (title || description) src.dateModified = new Date();
+
+		return src;
+	}
+
+	/** @returns {Promise<ResultStrict<{}>>} */
+	async propagate(/** @type {Note} */ note) {
 		let data;
 		try {
 			const res = await fetch(`/api/v1/note/edit`, {
@@ -75,19 +137,21 @@ export class NoteManager {
 				},
 				body: JSON.stringify({
 					id: note.id,
-					title,
-					description,
+					title: note.title,
+					description: note.description,
+					done: note.done,
+					priority: note.priority,
 				}),
 			});
 
 			data = await res.json();
-		} catch {
-			return [undefined, [new Error('Network error')]];
+		} catch (err) {
+			return [undefined, [new Error('Network error', { cause: err })]];
 		}
 
 		if (!data.ok) {
 			switch (data.error.code) {
-				case 'NOTE_NOT_FOUND':
+				case 'NOT_FOUND':
 					return [
 						undefined,
 						[
@@ -104,7 +168,8 @@ export class NoteManager {
 						undefined,
 						[
 							new Error(
-								`Failed to update note (${data.error.code})`,
+								data.error.message ??
+									`Failed to update note (${data.error.code})`,
 								{
 									cause: data.error,
 								},
@@ -117,7 +182,60 @@ export class NoteManager {
 		return [data.data, undefined];
 	}
 
-	async getNotes() {
+	/** @returns {Promise<ResultVoid>} */
+	async delete(/** @type {Note} */ note) {
+		let data;
+		try {
+			const res = await fetch(`/api/v1/note/delete`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					id: note.id,
+				}),
+			});
+
+			data = await res.json();
+		} catch (err) {
+			return [undefined, [new Error('Network error', { cause: err })]];
+		}
+
+		if (!data.ok) {
+			switch (data.error.code) {
+				case 'NOT_FOUND':
+					return [
+						undefined,
+						[
+							new Error(
+								'Note not found. It may have already been deleted',
+								{
+									cause: data.error,
+								},
+							),
+						],
+					];
+				default:
+					return [
+						undefined,
+						[
+							new Error(
+								data.error.message ??
+									`Failed to delete note (${data.error.code})`,
+								{
+									cause: data.error,
+								},
+							),
+						],
+					];
+			}
+		}
+
+		return [undefined, undefined];
+	}
+
+	/** @returns {Promise<ResultReasoned<Note[]>>} */
+	async getAll() {
 		let data;
 		try {
 			const res = await fetch('/api/v1/note/all');
@@ -129,7 +247,7 @@ export class NoteManager {
 			 * 		title: string;
 			 * 		description: string;
 			 * 		done: boolean;
-			 * 		priority: import('./lib/core/NoteManager.js').NotePriority;
+			 * 		priority: NotePriority;
 			 * 		owner: string;
 			 * 		dateCreated: string;
 			 * 		dateModified: string;
@@ -140,35 +258,60 @@ export class NoteManager {
 		} catch (err) {
 			return [
 				undefined,
-				[new Error('Network error', {
-					cause: err,
-				})],
+				[
+					new Error('Network error', {
+						cause: err,
+					}),
+				],
 			];
 		}
 
-		if (!res.ok && !json.ok)
-			Toaster.toast(
-				json.error.message || 'Failed to fetch notes',
-				Toast.variants.error,
-			);
-		else if (res.ok && json.ok)
-			return json.data.map((note) => {
-				const dateCreated = new Date(note.dateCreated);
-				const dateModified = new Date(note.dateModified);
+		if (!data.ok)
+			return [
+				undefined,
+				[
+					new Error(data.error.message ?? 'Failed to fetch notes', {
+						cause: data.error,
+					}),
+				],
+			];
 
-				return {
-					id: note.id,
-					title: note.title,
-					description: note.description,
-					done: note.done,
-					priority: note.priority,
-					owner: user,
-					dateCreated,
-					dateModified,
-					peepeepoopoo: note.peepeepoopoo,
-				};
-			});
+		/** @type {[Error, ...Error[]] | undefined} */
+		let err;
+		return [
+			await Promise.all(
+				data.data.map(async (note) => {
+					const dateCreated = new Date(note.dateCreated);
+					const dateModified = new Date(note.dateModified);
 
-		return [];
+					const [userRes, userErr] =
+						await AuthManager.instance.getUser(note.owner);
+
+					if (userErr)
+						if (err) err.push(...userErr);
+						else err = [...userErr];
+
+					return {
+						id: note.id,
+						title: note.title,
+						description: note.description,
+						done: note.done,
+						priority: note.priority,
+						owner: {
+							id: note.owner,
+							username: '<unknown>',
+							email: '<unknown>',
+							peepeepoopoo: 'peepeepoopoo',
+
+							...userRes?.data,
+						},
+						dateCreated,
+						dateModified,
+						peepeepoopoo: note.peepeepoopoo,
+					};
+				}),
+			),
+			err,
+		];
 	}
 }

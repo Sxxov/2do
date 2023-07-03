@@ -1,25 +1,27 @@
-import { X, css, html, until, spread, repeat } from '../lib/common/x/X.js';
-import '../lib/layout/Main.js';
+import { stateT } from '../lib/common/lit/runtime/traits/stateT.js';
+import { arrT } from '../lib/common/lit/runtime/types/arrT.js';
+import { boolT } from '../lib/common/lit/runtime/types/boolT.js';
+import { numT } from '../lib/common/lit/runtime/types/numT.js';
+import { objT } from '../lib/common/lit/runtime/types/objT.js';
+import { strT } from '../lib/common/lit/runtime/types/strT.js';
+import { X, css, html, repeat, spread, until } from '../lib/common/x/X.js';
 import { Button } from '../lib/components/Button.js';
-import './lib/components/AppCtaFragment.js';
-import './lib/components/AppMenuFragment.js';
+import '../lib/components/Dialog.js';
+import '../lib/components/Input.js';
 import '../lib/components/LoaderCircle.js';
 import '../lib/components/LoaderSkeleton.js';
-import './lib/components/NoteItem.js';
-import { Dropdown } from '../lib/components/Dropdown.js';
-import '../lib/components/Input.js';
-import { objT } from '../lib/common/lit/runtime/types/objT.js';
-import { stateT } from '../lib/common/lit/runtime/traits/stateT.js';
-import { Toaster } from '../lib/components/Toaster.js';
 import { Toast } from '../lib/components/Toast.js';
-import { numT } from '../lib/common/lit/runtime/types/numT.js';
-import { strT } from '../lib/common/lit/runtime/types/strT.js';
-import { Input } from '../lib/components/Input.js';
-import '../lib/components/Dialog.js';
-import { boolT } from '../lib/common/lit/runtime/types/boolT.js';
-import { arrT } from '../lib/common/lit/runtime/types/arrT.js';
-import { NoteSortKinds, NoteSorters } from './lib/core/NoteManager.js';
+import { Toaster } from '../lib/components/Toaster.js';
+import '../lib/layout/Main.js';
+import './lib/components/AppCtaFragment.js';
+import './lib/components/AppMenuFragment.js';
+import './lib/components/NoteItem.js';
 import { AuthManager } from './lib/core/AuthManager.js';
+import {
+	NoteManager,
+	NoteSortKinds,
+	NoteSorters,
+} from './lib/core/NoteManager.js';
 
 export class AppRoute extends X {
 	/**
@@ -74,79 +76,14 @@ export class AppRoute extends X {
 		super.disconnectedCallback();
 	}
 
-	/**
-	 * @returns {| Promise<{
-	 * 			id: string;
-	 * 			username: string;
-	 * 			email: string;
-	 * 			peepeepoopoo: 'peepeepoopoo';
-	 * 	  }>
-	 * 	| never}
-	 */
-	async #getUser() {
-		if (this.user) return this.user;
-
-		const res = await fetch('/api/v1/auth/user');
-		const user = await res.json();
-
-		this.user = user.data;
-
-		return user.data;
-	}
-
 	/** @returns {Promise<import('./lib/core/NoteManager.js').Note[]>} */
 	async #getNotes() {
-		// fake timeout cuz our server is too fast
-		await new Promise((resolve) => void setTimeout(resolve, 500));
+		const [res, err] = await NoteManager.instance.getAll();
 
-		const user = await this.#getUser();
+		if (err)
+			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
 
-		await new Promise((resolve) => void setTimeout(resolve, 500));
-
-		const res = await fetch('/api/v1/note/all');
-		const json = /**
-		 * @type {ApiAny<
-		 * 	{
-		 * 		id: string;
-		 * 		title: string;
-		 * 		description: string;
-		 * 		done: boolean;
-		 * 		priority: import('./lib/core/NoteManager.js').NotePriority;
-		 * 		owner: string;
-		 * 		dateCreated: string;
-		 * 		dateModified: string;
-		 * 		peepeepoopoo: 'peepeepoopoo';
-		 * 	}[]
-		 * >}
-		 */ (await res.json());
-
-		if (!res.ok && !json.ok)
-			Toaster.toast(
-				json.error.message || 'Failed to fetch notes',
-				Toast.variants.error,
-			);
-		else if (res.ok && json.ok)
-			return json.data.map((note) => {
-				// if (note.owner !== user.id)
-				// 	throw new Error(
-				// 		"Oh nyo! Encountered note whose owner is not of the same user that's signed-in. This is a bug!",
-				// 	);
-
-				const dateCreated = new Date(note.dateCreated);
-				const dateModified = new Date(note.dateModified);
-
-				return {
-					id: note.id,
-					title: note.title,
-					description: note.description,
-					done: note.done,
-					priority: note.priority,
-					owner: user,
-					dateCreated,
-					dateModified,
-					peepeepoopoo: note.peepeepoopoo,
-				};
-			});
+		if (res) return res;
 
 		return [];
 	}
@@ -178,38 +115,13 @@ export class AppRoute extends X {
 		});
 		this.requestUpdate('notePlaceholders');
 
-		let data;
-		try {
-			const res = await fetch('/api/v1/note/create.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					title,
-					description,
-				}),
-			});
-			data = await res.json();
-		} catch {
-			Toaster.toast('Network error', Toast.variants.error);
-
-			return;
-		}
-
-		if (!data.ok) {
-			switch (data.error.code) {
-				default:
-					Toaster.toast(
-						`Failed to create note (${data.error.code})`,
-						Toast.variants.error,
-					);
-			}
-
-			return;
-		}
-
-		Toaster.toast('Successfully created note', Toast.variants.ok);
+		const [, err] = await NoteManager.instance.create({
+			title,
+			description,
+		});
+		if (err)
+			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
+		else Toaster.toast('Successfully created note', Toast.variants.ok);
 
 		await this.#refreshNotes();
 	}
@@ -218,54 +130,19 @@ export class AppRoute extends X {
 		/** @type {import('./lib/core/NoteManager.js').Note} */ note,
 		/** @type {boolean} */ done = !note.done,
 	) {
-		const message = done ? 'note as done' : 'note as not done';
-		// const { cancel } = Toaster.toast(`Marking ${message}…`);
-
 		note.done = done;
 
+		Object.assign(
+			note,
+			NoteManager.instance.edit(note, {
+				done,
+			}),
+		);
 		this.requestUpdate('notes');
 
-		let data;
-		try {
-			const res = await fetch(`/api/v1/note/edit`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					id: note.id,
-					done,
-				}),
-			});
-
-			data = await res.json();
-		} catch {
-			Toaster.toast('Network error', Toast.variants.error);
-
-			return;
-		}
-
-		// cancel();
-
-		if (!data.ok) {
-			switch (data.error.code) {
-				case 'NOTE_NOT_FOUND':
-					Toaster.toast(
-						'Note not found. It may have been deleted by another session.',
-						Toast.variants.error,
-					);
-					break;
-				default:
-					Toaster.toast(
-						`Failed to update note (${data.error.code})`,
-						Toast.variants.error,
-					);
-			}
-
-			return;
-		}
-
-		// Toaster.toast(`Successfully marked ${message}`, Toast.variants.ok);
+		const [, err] = await NoteManager.instance.propagate(note);
+		if (err)
+			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
 
 		this.#refreshNotes();
 	}
@@ -279,60 +156,19 @@ export class AppRoute extends X {
 		 * 	done: boolean;
 		 * 	priority: import('./lib/core/NoteManager.js').NotePriority;
 		 * }>}
-		 */ { title, description, done, priority },
+		 */ to,
 	) {
 		const { cancel } = Toaster.toast('Updating note…');
 
-		if (title) note.title = title;
-		if (description) note.description = description;
-		if (done) note.done = done;
-		if (priority) note.priority = priority;
-		if (title || description) note.dateModified = new Date();
-
+		Object.assign(note, NoteManager.instance.edit(note, to));
 		this.requestUpdate('notes');
-
-		let data;
-		try {
-			const res = await fetch(`/api/v1/note/edit`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					id: note.id,
-					title,
-					description,
-				}),
-			});
-
-			data = await res.json();
-		} catch {
-			Toaster.toast('Network error', Toast.variants.error);
-
-			return;
-		}
+		const [, err] = await NoteManager.instance.propagate(note);
 
 		cancel();
 
-		if (!data.ok) {
-			switch (data.error.code) {
-				case 'NOTE_NOT_FOUND':
-					Toaster.toast(
-						'Note not found. It may have been deleted by another session.',
-						Toast.variants.error,
-					);
-					break;
-				default:
-					Toaster.toast(
-						`Failed to update note (${data.error.code})`,
-						Toast.variants.error,
-					);
-			}
-
-			return;
-		}
-
-		Toaster.toast('Successfully updated note', Toast.variants.ok);
+		if (err)
+			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
+		else Toaster.toast('Successfully updated note', Toast.variants.ok);
 
 		this.#refreshNotes();
 	}
@@ -345,47 +181,13 @@ export class AppRoute extends X {
 		this.notes?.splice(this.notes.indexOf(note), 1);
 		this.requestUpdate('notes');
 
-		let data;
-		try {
-			const res = await fetch(`/api/v1/note/delete`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					id: note.id,
-				}),
-			});
-
-			data = await res.json();
-		} catch {
-			Toaster.toast('Network error', Toast.variants.error);
-
-			return;
-		}
+		const [, err] = await NoteManager.instance.delete(note);
 
 		cancel();
 
-		if (!data.ok) {
-			switch (data.error.code) {
-				case 'NOTE_NOT_FOUND':
-					Toaster.toast(
-						'Note not found. It may have already been deleted',
-						Toast.variants.error,
-					);
-					break;
-				default:
-					Toaster.toast(
-						data.error.message ||
-							`Failed to create note (${data.error.code})`,
-						Toast.variants.error,
-					);
-			}
-
-			return;
-		}
-
-		Toaster.toast('Note deleted', Toast.variants.ok);
+		if (err)
+			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
+		else Toaster.toast('Note deleted', Toast.variants.ok);
 	}
 
 	#getSortedAndFilteredNotes(
@@ -428,7 +230,7 @@ export class AppRoute extends X {
 					<div class="heading">
 						${until(
 							AuthManager.instance
-								.signInFromSession()
+								.getUser()
 								.then(
 									(res) => html`<h5>
 										${new Date().getHours() < 4
@@ -444,8 +246,8 @@ export class AppRoute extends X {
 									</h5>`,
 								),
 							html`<x-loader-circle
-								height="21px"
-								width="21px"
+								height="1.6rem"
+								width="1.6rem"
 							></x-loader-circle>`,
 						)}
 						${until(
@@ -460,8 +262,8 @@ export class AppRoute extends X {
 								</p>`;
 							}),
 							html`<x-loader-circle
-								height="21px"
-								width="21px"
+								height="20.67px"
+								width="20.67px"
 							></x-loader-circle>`,
 						)}
 					</div>

@@ -6,16 +6,22 @@
  * 	peepeepoopoo: 'peepeepoopoo';
  * }} User
  */
+/**
+ * @typedef {{
+ * 	id: string;
+ * 	username: string;
+ * 	peepeepoopoo: 'peepeepoopoo';
+ * }} ForeignUser
+ */
 
 export class AuthManager {
 	static instance = new AuthManager();
 
 	/** @type {User | undefined} */
-	#user;
+	#user = undefined;
 
-	get user() {
-		return this.#user;
-	}
+	/** @type {Map<string, ForeignUser>} */
+	#idToForeignUser = new Map();
 
 	/** @returns {ResultBranched<true, false>} */
 	static validateUsername(/** @type {string} */ username) {
@@ -58,11 +64,95 @@ export class AuthManager {
 		return [true, undefined];
 	}
 
+	/* eslint-disable */
+	// https://github.com/hosseinmd/prettier-plugin-jsdoc/issues/192
+	/**
+	 * Get user from session
+	 *
+	 * @overload
+	 * @returns {Promise<ResultStrict<ApiOk<User>>>}
+	 */ /**
+	 * Get user from id
+	 *
+	 * @overload
+	 * @param {string} userId
+	 * @returns {Promise<ResultStrict<ApiOk<ForeignUser | User>>>}
+	 */ /**
+	 * @param {string | undefined} userId
+	 * @returns {Promise<ResultStrict<ApiOk<ForeignUser | User>>>}
+	 */
+	/* eslint-enable */
+	async getUser(userId = undefined) {
+		/** @type {User | ForeignUser | undefined} */
+
+		cacheCheck: {
+			if (userId) {
+				if (userId === this.#user?.id)
+					return [{ ok: true, data: this.#user }, undefined];
+
+				let user;
+				if ((user = this.#idToForeignUser.get(userId)))
+					return [{ ok: true, data: user }, undefined];
+
+				break cacheCheck;
+			} else if (this.#user)
+				return [{ ok: true, data: this.#user }, undefined];
+			else
+				cacheMissSession: {
+					const [res, err] = await this.signInFromSession();
+
+					if (err) return [undefined, err];
+					return [res, undefined];
+				}
+		}
+
+		cacheMissForeign: {
+			let data;
+			try {
+				const res = await fetch('/api/v1/auth/user', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ id: userId }),
+				});
+				data = await res.json();
+			} catch (err) {
+				return [
+					undefined,
+					[new Error('Network error', { cause: err })],
+				];
+			}
+
+			if (!data.ok)
+				switch (data.err.code) {
+					case 'NOT_FOUND':
+						return [undefined, [new Error('User not found')]];
+					default:
+						return [
+							undefined,
+							[
+								new Error(
+									`Failed to fetch user (${data.err.code})`,
+									{
+										cause: data.err,
+									},
+								),
+							],
+						];
+				}
+
+			this.#idToForeignUser.set(data.data.id, data.data);
+
+			return [data, undefined];
+		}
+	}
+
 	/** @returns {Promise<ResultStrict<ApiOk<User>>>} */
 	async signInFromSession() {
 		let data;
 		try {
-			const res = await fetch('/api/v1/auth/user.php');
+			const res = await fetch('/api/v1/auth/user');
 			data = await res.json();
 		} catch (err) {
 			return [undefined, [new Error('Network error', { cause: err })]];
@@ -99,7 +189,7 @@ export class AuthManager {
 
 		let data;
 		try {
-			const res = await fetch('/api/v1/auth/sign-in.php', {
+			const res = await fetch('/api/v1/auth/sign-in', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -162,7 +252,7 @@ export class AuthManager {
 
 		let data;
 		try {
-			const res = await fetch('/api/v1/auth/sign-up.php', {
+			const res = await fetch('/api/v1/auth/sign-up', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -217,7 +307,7 @@ export class AuthManager {
 	async signOut() {
 		let data;
 		try {
-			const res = await fetch('/api/v1/auth/sign-out.php', {
+			const res = await fetch('/api/v1/auth/sign-out', {
 				method: 'POST',
 			});
 
