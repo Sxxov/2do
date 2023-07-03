@@ -13,8 +13,6 @@ import '../lib/components/LoaderSkeleton.js';
 import { Toast } from '../lib/components/Toast.js';
 import { Toaster } from '../lib/components/Toaster.js';
 import '../lib/layout/Main.js';
-import './lib/components/AppNavRightFragment.js';
-import './lib/components/AppNavMenuFragment.js';
 import './lib/components/NoteItem.js';
 import '../lib/components/Dropdown.js';
 import { AuthManager } from './lib/core/AuthManager.js';
@@ -23,9 +21,7 @@ import {
 	NoteSortKinds,
 	NoteSorters,
 } from './lib/core/NoteManager.js';
-import './lib/components/AppNavRightFragment.js';
 import './lib/components/AppNavMenuFragment.js';
-import './lib/components/AppNavLeftFragment.js';
 
 export class AppRoute extends X {
 	/**
@@ -221,15 +217,27 @@ export class AppRoute extends X {
 				<x-app-nav-menu-fragment
 					slot="nav-menu"
 				></x-app-nav-menu-fragment>
-				<x-app-nav-left-fragment
-					slot="nav-left"
-				></x-app-nav-left-fragment>
-				<x-app-nav-right-fragment
-					slot="nav-right"
-					@refresh=${() => {
-						void this.#refreshAndToastNotes();
-					}}
-				></x-app-nav-right-fragment>
+				<div slot="nav-left">
+					<x-button
+						${spread(Button.variants.secondary)}
+						@click=${() => {
+							location.href = '/app/calendar';
+						}}
+					>
+						<x-i slot="left">today</x-i>
+						Calendar view
+					</x-button>
+				</div>
+				<div slot="nav-right">
+					<x-button
+						${spread(Button.variants.secondary)}
+						@click=${() => {
+							void this.#refreshAndToastNotes();
+						}}
+					>
+						<x-i>refresh</x-i>
+					</x-button>
+				</div>
 				<div class="content">
 					<div class="heading">
 						${until(
