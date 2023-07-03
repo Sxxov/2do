@@ -41,7 +41,7 @@ $note = new Note(
 	dateStart: $in->dateStart,
 	dateDue: $in->dateDue,
 	done: false,
-	priority: 0,
+	priority: $in->priority,
 );
 try {
 	$res = $db->query(
