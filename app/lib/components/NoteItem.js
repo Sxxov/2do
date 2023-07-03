@@ -2,7 +2,7 @@ import { boolT } from '../../../lib/common/lit/runtime/types/boolT.js';
 import { numT } from '../../../lib/common/lit/runtime/types/numT.js';
 import { objT } from '../../../lib/common/lit/runtime/types/objT.js';
 import { strT } from '../../../lib/common/lit/runtime/types/strT.js';
-import { X, html, css, spread } from '../../../lib/common/x/X.js';
+import { X, html, css, spread, nothing } from '../../../lib/common/x/X.js';
 import { Button } from '../../../lib/components/Button.js';
 import { NotePriorities } from '../core/NoteManager.js';
 
@@ -67,7 +67,7 @@ export class NoteItem extends X {
 					<div class="info">
 						<p class="title">
 							${this.title}<span class="meta"
-								>${this.date.toLocaleString()}</span
+								>${this.date?.toLocaleString() ?? nothing}</span
 							>
 						</p>
 						${this.description
