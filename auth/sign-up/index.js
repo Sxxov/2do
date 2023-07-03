@@ -86,8 +86,8 @@ export class AuthSignUpRoute extends X {
 
 								const [res, err] =
 									await AuthManager.instance.signUp(
-										email,
 										username,
+										email,
 										password,
 									);
 
