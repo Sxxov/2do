@@ -37,7 +37,7 @@ try {
 
 	if ($db->affected_rows <= 0) {
 		return (new ResErr(
-			ResErrCodes::NOTE_NOT_FOUND,
+			ResErrCodes::NOT_FOUND,
 			message: 'Attempted to delete a note that does not exist',
 		))->echo();
 	}

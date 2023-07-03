@@ -1,3 +1,4 @@
+import { AuthManager } from '../../app/lib/core/AuthManager.js';
 import { X, css, html, spread } from '../../lib/common/x/X.js';
 import { Button } from '../../lib/components/Button.js';
 import '../../lib/components/Input.js';
@@ -52,8 +53,6 @@ export class AuthSignUpRoute extends X {
 									/** @type {HTMLFormElement} */ (e.target),
 								);
 
-								let ok = true;
-
 								const email = String(form.get('email'));
 								const username = String(form.get('username'));
 								const password = String(form.get('password'));
@@ -61,122 +60,43 @@ export class AuthSignUpRoute extends X {
 									form.get('confirm-password'),
 								);
 
-								if (email) {
-									if (
-										!email.match(
-											/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-										)
-									)
-										Toaster.toast(
-											'Please enter a valid email',
-											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please enter an email',
-										Toast.variants.error,
-									),
-										(ok = false);
+								verifyConfirmPassword: {
+									if (!password)
+										// haven't input password, no need verify
+										break verifyConfirmPassword;
 
-								if (username) {
-									if (
-										username.length < 3 ||
-										username.length > 20
-									)
+									if (!confirmPassword) {
 										Toaster.toast(
-											'Username must be between 3 to 20 characters',
+											'Please confirm your password',
 											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please enter a username',
-										Toast.variants.error,
-									),
-										(ok = false);
+										);
+										return;
+									}
 
-								if (password) {
-									if (
-										password.length < 8 ||
-										password.length > 255
-									)
-										Toaster.toast(
-											'Password must be longer than 8 characters',
-											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please enter a password',
-										Toast.variants.error,
-									),
-										(ok = false);
-
-								if (confirmPassword) {
-									if (confirmPassword !== password)
+									if (confirmPassword !== password) {
 										Toaster.toast(
 											'Passwords do not match',
 											Toast.variants.error,
-										),
-											(ok = false);
-								} else
-									Toaster.toast(
-										'Please confirm your password',
-										Toast.variants.error,
-									),
-										(ok = false);
-
-								if (!ok) return;
-
-								let data;
-								try {
-									const res = await fetch(
-										'/api/v1/auth/sign-up.php',
-										{
-											method: 'POST',
-											headers: {
-												'Content-Type':
-													'application/json',
-											},
-											body: JSON.stringify({
-												email,
-												username,
-												password,
-											}),
-										},
-									);
-									data = await res.json();
-								} catch {
-									Toaster.toast(
-										'Network error',
-										Toast.variants.error,
-									);
-
-									return;
-								}
-
-								if (!data.ok) {
-									switch (data.err.code) {
-										case 'SIGN_UP_USERNAME_TAKEN':
-											Toaster.toast(
-												'A user with that username already exists',
-												Toast.variants.error,
-											);
-											break;
-										case 'SIGN_UP_EMAIL_TAKEN':
-											Toaster.toast(
-												'A user with that email already exists',
-												Toast.variants.error,
-											);
-											break;
-										default:
-											Toaster.toast(
-												`Failed to sign-up (${data.err.code})`,
-												Toast.variants.error,
-											);
+										);
+										return;
 									}
 
+									// ok
+								}
+
+								const [res, err] =
+									await AuthManager.instance.signUp(
+										email,
+										username,
+										password,
+									);
+
+								if (err) {
+									for (const { message } of err)
+										Toaster.toast(
+											message,
+											Toast.variants.error,
+										);
 									return;
 								}
 
@@ -185,7 +105,8 @@ export class AuthSignUpRoute extends X {
 									Toast.variants.ok,
 								);
 
-								location.href = data.redirect;
+								if (res.redirect != null)
+									location.href = res.redirect;
 							}}"
 						>
 							<x-input

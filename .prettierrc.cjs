@@ -10,4 +10,5 @@ module.exports = {
 	phpVersion: '8.2',
 	trailingCommaPHP: true,
 	braceStyle: '1tbs',
+	tsdoc: true,
 };

@@ -207,6 +207,39 @@ class Authenticator {
 		return new ResOk($user, redirect: '/app');
 	}
 
+	public function getUser(string $userId) {
+		try {
+			$res = $this->db->query(
+				<<<SQL
+				SELECT * FROM users WHERE user_id = "{$this->db->real_escape_string(
+					$userId,
+				)}";
+				SQL
+				,
+			);
+
+			if ($res->num_rows <= 0) {
+				return new ResErr(ResErrCodes::NOT_FOUND);
+			}
+
+			$row = $res->fetch_assoc();
+
+			$user = new User(
+				id: $row['user_id'],
+				username: $row['username'],
+				email: $row['email'],
+			);
+		} catch (mysqli_sql_exception $err) {
+			return new ResErr(
+				ResErrCodes::UNKNOWN,
+				message: 'Failed to get user',
+				detail: $err,
+			);
+		}
+
+		return new ResOk($user);
+	}
+
 	public function getSessionUser(?string $sessionId = null) {
 		$sessionId ??= $this->getSession();
 

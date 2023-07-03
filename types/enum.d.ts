@@ -1,0 +1,1 @@
+declare type OneOf<T extends object> = T[keyof T];
