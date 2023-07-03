@@ -125,7 +125,7 @@ export class AuthManager {
 			}
 
 			if (!data.ok)
-				switch (data.err.code) {
+				switch (data.error.code) {
 					case 'NOT_FOUND':
 						return [undefined, [new Error('User not found')]];
 					default:
@@ -133,7 +133,7 @@ export class AuthManager {
 							undefined,
 							[
 								new Error(
-									`Failed to fetch user (${data.err.code})`,
+									`Failed to fetch user (${data.error.code})`,
 									{
 										cause: data.err,
 									},
@@ -159,13 +159,17 @@ export class AuthManager {
 		}
 
 		if (!data.ok)
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'FORBIDDEN':
 					return [undefined, [new Error('Not authenticated')]];
 				default:
 					return [
 						undefined,
-						[new Error(`Failed to fetch user (${data.err.code})`)],
+						[
+							new Error(
+								`Failed to fetch user (${data.error.code})`,
+							),
+						],
 					];
 			}
 
@@ -212,7 +216,7 @@ export class AuthManager {
 		}
 
 		if (!data.ok)
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'SIGN_IN_USER_NOT_FOUND':
 					return [undefined, [new Error('User not found')]];
 				case 'SIGN_IN_INVALID_CREDENTIALS':
@@ -224,9 +228,12 @@ export class AuthManager {
 					return [
 						undefined,
 						[
-							new Error(`Failed to sign-in (${data.err.code})`, {
-								cause: data.err,
-							}),
+							new Error(
+								`Failed to sign-in (${data.error.code})`,
+								{
+									cause: data.err,
+								},
+							),
 						],
 					];
 			}
@@ -276,7 +283,7 @@ export class AuthManager {
 		}
 
 		if (!data.ok)
-			switch (data.err.code) {
+			switch (data.error.code) {
 				case 'SIGN_UP_USERNAME_TAKEN':
 					return [
 						undefined,
@@ -291,9 +298,12 @@ export class AuthManager {
 					return [
 						undefined,
 						[
-							new Error(`Failed to sign-up (${data.err.code})`, {
-								cause: data.err,
-							}),
+							new Error(
+								`Failed to sign-up (${data.error.code})`,
+								{
+									cause: data.err,
+								},
+							),
 						],
 					];
 			}
@@ -327,7 +337,7 @@ export class AuthManager {
 			return [
 				undefined,
 				[
-					new Error(`Failed to sign-out (${data.err.code})`, {
+					new Error(`Failed to sign-out (${data.error.code})`, {
 						cause: data.err,
 					}),
 				],
