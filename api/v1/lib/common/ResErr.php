@@ -2,7 +2,7 @@
 
 namespace api\v1\lib\common;
 
-class ResErr {
+class ResErr extends Res {
 	public ResErrCodes $code;
 	public ?string $field;
 	public ?string $message;
@@ -31,9 +31,17 @@ class ResErr {
 		}
 	}
 
-	public function echo() {
+	public function echo(): void {
 		http_response_code($this->code->http()->value);
 		echo $this;
+	}
+
+	public function ifOk(): ?self {
+		return null;
+	}
+
+	public function ifErr(): ?self {
+		return $this;
 	}
 
 	public function __toString(): string {

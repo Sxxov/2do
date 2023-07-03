@@ -2,7 +2,7 @@
 
 namespace api\v1\lib\common;
 
-class ResOk {
+class ResOk extends Res {
 	public array $data;
 	public ?string $redirect;
 
@@ -14,9 +14,17 @@ class ResOk {
 		}
 	}
 
-	public function echo() {
+	public function echo(): void {
 		http_response_code(200);
 		echo $this;
+	}
+
+	public function ifOk(): ?self {
+		return $this;
+	}
+
+	public function ifErr(): ?self {
+		return null;
 	}
 
 	public function __toString(): string {
