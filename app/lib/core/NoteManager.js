@@ -127,19 +127,14 @@ export class NoteManager {
 		 * 		| 'dateDue'
 		 * 	>
 		 * >}
-		 */ { title, description, done, priority, dateStart, dateDue },
+		 */ from,
 	) {
-		src = { ...src };
+		const edited = { ...src, ...from };
 
-		if (title) src.title = title;
-		if (description) src.description = description;
-		if (done) src.done = done;
-		if (priority) src.priority = priority;
-		if (dateStart) src.dateStart = dateStart;
-		if (dateDue) src.dateDue = dateDue;
-		if (title || description) src.dateModified = new Date();
+		if (from.title || from.description || from.dateDue || from.dateStart)
+			edited.dateModified = new Date();
 
-		return src;
+		return edited;
 	}
 
 	/** @returns {Promise<ResultStrict<{}>>} */
