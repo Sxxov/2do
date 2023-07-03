@@ -13,9 +13,10 @@ import '../lib/components/LoaderSkeleton.js';
 import { Toast } from '../lib/components/Toast.js';
 import { Toaster } from '../lib/components/Toaster.js';
 import '../lib/layout/Main.js';
-import './lib/components/AppCtaFragment.js';
+import './lib/components/AppNavRightFragment.js';
 import './lib/components/AppMenuFragment.js';
 import './lib/components/NoteItem.js';
+import '../lib/components/Dropdown.js';
 import { AuthManager } from './lib/core/AuthManager.js';
 import {
 	NoteManager,
@@ -219,13 +220,15 @@ export class AppRoute extends X {
 	render() {
 		return html`
 			<x-main>
-				<x-app-menu-fragment slot="menu"></x-app-menu-fragment>
-				<x-app-cta-fragment
-					slot="cta"
+				<x-app-nav-menu-fragment
+					slot="nav-menu"
+				></x-app-nav-menu-fragment>
+				<x-app-nav-right-fragment
+					slot="nav-right"
 					@refresh=${() => {
 						void this.#refreshAndToastNotes();
 					}}
-				></x-app-cta-fragment>
+				></x-app-nav-right-fragment>
 				<div class="content">
 					<div class="heading">
 						${until(

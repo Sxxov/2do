@@ -1,7 +1,7 @@
 import { X, html, css, spread } from '../../../lib/common/x/X.js';
 import { Button } from '../../../lib/components/Button.js';
 
-export class AppCtaFragment extends X {
+export class AppNavRightFragment extends X {
 	/** @override */
 	render() {
 		return html`
@@ -18,11 +18,7 @@ export class AppCtaFragment extends X {
 			>
 				<x-i>refresh</x-i>
 			</x-button>
-			<!-- <x-button ${spread(Button.variants.primary)}>
-				<x-i slot="left">add</x-i>
-				Note
-			</x-button> -->
 		`;
 	}
 }
-customElements.define('x-app-cta-fragment', AppCtaFragment);
+customElements.define('x-app-nav-right-fragment', AppNavRightFragment);
