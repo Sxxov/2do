@@ -23,5 +23,11 @@ $db->query(
 	SQL
 	,
 );
+$db->query(
+	<<<SQL
+		DROP TABLE IF EXISTS `reminders`;
+	SQL
+	,
+);
 
 return (new ResOk([]))->echo();
