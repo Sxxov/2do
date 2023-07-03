@@ -1,6 +1,6 @@
-import { X, html, css } from '../../../lib/common/x/X.js';
+import { X, html } from '../../../lib/common/x/X.js';
 
-export class AppMenuFragment extends X {
+export class AppNavMenuFragment extends X {
 	/** @override */
 	render() {
 		return html`
@@ -12,4 +12,4 @@ export class AppMenuFragment extends X {
 		`;
 	}
 }
-customElements.define('x-app-menu-fragment', AppMenuFragment);
+customElements.define('x-app-nav-menu-fragment', AppNavMenuFragment);

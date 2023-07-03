@@ -14,7 +14,7 @@ import { Toast } from '../lib/components/Toast.js';
 import { Toaster } from '../lib/components/Toaster.js';
 import '../lib/layout/Main.js';
 import './lib/components/AppNavRightFragment.js';
-import './lib/components/AppMenuFragment.js';
+import './lib/components/AppNavMenuFragment.js';
 import './lib/components/NoteItem.js';
 import '../lib/components/Dropdown.js';
 import { AuthManager } from './lib/core/AuthManager.js';
@@ -23,6 +23,9 @@ import {
 	NoteSortKinds,
 	NoteSorters,
 } from './lib/core/NoteManager.js';
+import './lib/components/AppNavRightFragment.js';
+import './lib/components/AppNavMenuFragment.js';
+import './lib/components/AppNavLeftFragment.js';
 
 export class AppRoute extends X {
 	/**
@@ -209,11 +212,6 @@ export class AppRoute extends X {
 				(a, b) =>
 					NoteSorters[this.noteSortKind](a, b) * this.noteSortOrder,
 			);
-		// .sort(
-		// 	(a, b) =>
-		// 		(a.done === b.done ? 0 : a.done ? 1 : -1) *
-		// 		this.noteSortOrder,
-		// );
 	}
 
 	/** @override */
@@ -223,6 +221,9 @@ export class AppRoute extends X {
 				<x-app-nav-menu-fragment
 					slot="nav-menu"
 				></x-app-nav-menu-fragment>
+				<x-app-nav-left-fragment
+					slot="nav-left"
+				></x-app-nav-left-fragment>
 				<x-app-nav-right-fragment
 					slot="nav-right"
 					@refresh=${() => {

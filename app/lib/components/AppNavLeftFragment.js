@@ -7,16 +7,12 @@ export class AppNavLeftFragment extends X {
 		return html`
 			<x-button
 				${spread(Button.variants.secondary)}
-				@click=${(/** @type {PointerEvent} */ e) => {
-					e.currentTarget?.dispatchEvent(
-						new CustomEvent('refresh', {
-							bubbles: true,
-							composed: true,
-						}),
-					);
+				@click=${() => {
+					location.href = '/app/calendar';
 				}}
 			>
-				<x-i>refresh</x-i>
+				<x-i slot="left">today</x-i>
+				Calendar view
 			</x-button>
 		`;
 	}
