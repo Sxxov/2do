@@ -26,6 +26,7 @@ import '../lib/components/Dropdown.js';
 import { AuthManager } from './lib/core/AuthManager.js';
 import {
 	NoteManager,
+	NotePriorities,
 	NoteSortKinds,
 	NoteSorters,
 } from './lib/core/NoteManager.js';
@@ -63,7 +64,7 @@ export class AppRoute extends X {
 			.notesPromise;
 		/** @type {1 | -1} */ this.noteSortOrder = -1;
 		/** @type {import('./lib/core/NoteManager.js').NoteSortKind} */ this.noteSortKind =
-			NoteSortKinds.DATE_MODIFIED;
+			NoteSortKinds.DATE_CREATED;
 		/** @type {string} */ this.noteSearchQuery = '';
 		/** @type {boolean} */ this.noteDialogOpen = false;
 		/** @type {import('./lib/core/NoteManager.js').Note | undefined} */ this
@@ -142,7 +143,6 @@ export class AppRoute extends X {
 			priority,
 		});
 
-		console.error(err);
 		if (err)
 			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
 		else Toaster.toast('Successfully created note', Toast.variants.ok);
@@ -335,14 +335,14 @@ export class AppRoute extends X {
 										.items=${[
 											{
 												icon: 'today',
-												title: 'Modified',
-												value: NoteSortKinds.DATE_MODIFIED,
-												selected: true,
+												title: 'Created',
+												value: NoteSortKinds.DATE_CREATED,
 											},
 											{
 												icon: 'today',
-												title: 'Created',
-												value: NoteSortKinds.DATE_CREATED,
+												title: 'Modified',
+												value: NoteSortKinds.DATE_MODIFIED,
+												selected: true,
 											},
 											{
 												icon: 'sort_by_alpha',
@@ -413,6 +413,11 @@ export class AppRoute extends X {
 												.title=${note.title}
 												.description=${note.description}
 												.done=${note.done}
+												.priority=${note.priority}
+												.date=${note.dateDue.getUTCFullYear() >
+												1970
+													? note.dateDue
+													: note.dateStart}
 												@delete=${() => {
 													void this.#deleteNoteAndToast(
 														note,
@@ -471,10 +476,12 @@ export class AppRoute extends X {
 				<x-dialog
 					?open=${this.noteDialogOpen}
 					icon="note_add"
-					title="New note"
+					title=${this.noteDialogNote ? 'Edit note' : 'New note'}
 					class="note-new"
 					@close=${() => {
 						this.noteDialogOpen = false;
+						this.noteDialogNote = undefined;
+						this.noteDialogWorkingNote = undefined;
 					}}
 				>
 					<form
@@ -533,7 +540,16 @@ export class AppRoute extends X {
 												60 *
 												1000,
 								  );
-
+							const priority =
+								formData.get('priority') ===
+								'priority-important'
+									? NotePriorities.IMPORTANT
+									: formData.get('priority') ===
+									  'priority-urgent'
+									? NotePriorities.URGENT
+									: NotePriorities.NORMAL;
+							console.log(Object.fromEntries(formData.entries()));
+							console.log({ dateStart, dateDue });
 							if (!title)
 								Toaster.toast(
 									'Please enter a title',
@@ -550,7 +566,13 @@ export class AppRoute extends X {
 							if (this.noteDialogNote) {
 								void this.#editNoteAndToast(
 									this.noteDialogNote,
-									{ title, description, dateStart, dateDue },
+									{
+										title,
+										description,
+										dateStart,
+										dateDue,
+										priority,
+									},
 								);
 								this.noteDialogNote = undefined;
 								this.noteDialogWorkingNote = undefined;
@@ -560,7 +582,7 @@ export class AppRoute extends X {
 									description,
 									dateStart,
 									dateDue,
-									priority: 0,
+									priority,
 								});
 						}}
 					>
@@ -627,6 +649,33 @@ export class AppRoute extends X {
 								}}
 							></x-input>
 						</div>
+						<x-dropdown
+							name="priority"
+							width="100%"
+							i=${this.noteDialogWorkingNote?.priority ?? 0}
+							.expanderVariant=${{
+								...Button.variants.shadowSm,
+							}}
+							.items=${[
+								{
+									icon: 'info',
+									title: 'Normal',
+									value: 'priority-normal',
+									selected: true,
+								},
+								{
+									icon: 'warning',
+									title: 'Important',
+									value: 'priority-important',
+								},
+								{
+									icon: 'priority_high',
+									title: 'URGENT',
+									value: 'priority-urgent',
+								},
+							]}
+						>
+						</x-dropdown>
 					</form>
 					<x-button
 						type="submit"

@@ -4,6 +4,7 @@ import { objT } from '../../../lib/common/lit/runtime/types/objT.js';
 import { strT } from '../../../lib/common/lit/runtime/types/strT.js';
 import { X, html, css, spread } from '../../../lib/common/x/X.js';
 import { Button } from '../../../lib/components/Button.js';
+import { NotePriorities } from '../core/NoteManager.js';
 
 export class NoteItem extends X {
 	/**
@@ -15,6 +16,7 @@ export class NoteItem extends X {
 		description: strT,
 		done: boolT,
 		priority: numT,
+		date: objT,
 		placeholder: boolT,
 	};
 
@@ -23,6 +25,9 @@ export class NoteItem extends X {
 
 		/** @type {string} */ this.title;
 		/** @type {string} */ this.description;
+		/** @type {import('../core/NoteManager.js').NotePriority} */ this
+			.priority;
+		/** @type {Date} */ this.date;
 		/** @type {boolean} */ this.done;
 		/** @type {boolean} */ this.placeholder;
 	}
@@ -39,7 +44,13 @@ export class NoteItem extends X {
 				${spread(Button.variants.shadowSm)}
 				${spread(this.placeholder ? {} : Button.variants.flatRight)}
 				width="100%"
-				height="auto"
+				height="${this.priority === NotePriorities.NORMAL
+					? 'auto'
+					: this.priority === NotePriorities.IMPORTANT
+					? '112px'
+					: this.priority === NotePriorities.URGENT
+					? '224px'
+					: 'auto'}"
 				?disabled=${this.placeholder}
 				@click=${() => {
 					if (this.placeholder) return;
@@ -54,7 +65,11 @@ export class NoteItem extends X {
 			>
 				<div class="content" slot="content">
 					<div class="info">
-						<p class="title">${this.title}</p>
+						<p class="title">
+							${this.title}<span class="meta"
+								>${this.date.toLocaleString()}</span
+							>
+						</p>
 						${this.description
 							? html`<p class="description">
 									${this.description}
@@ -150,6 +165,22 @@ export class NoteItem extends X {
 			.content > .info > .title {
 				margin: 0;
 				font-weight: bold;
+
+				word-break: break-word;
+				text-align: left;
+			}
+
+			.content > .info > .title > .meta {
+				margin: 0;
+				font-weight: thin;
+				font-size: 0.8rem;
+				color: var(----colour-text-secondary);
+				margin-left: 0.5rem;
+			}
+
+			.content > .info > .title > .meta::before {
+				content: '·';
+				margin-right: 0.5rem;
 			}
 
 			.content > .info > .description {
