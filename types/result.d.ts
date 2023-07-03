@@ -50,3 +50,12 @@ declare type ResultStrict<Ok, Err extends Error = Error> =
 declare type ResultBranched<Ok, Nok, Err extends Error = Error> =
 	| readonly [result: Ok, error: undefined]
 	| readonly [result: Nok, error: readonly [Err, ...Err[]]];
+
+/**
+ * A different result tuple, that only returns void, but allows for reporting
+ * of errors that was encountered during the function's execution
+ * 
+ * Equivalent to `ResultRequired<void, Err>`
+ */
+declare type ResultVoid<Err extends Error = Error> =
+	| readonly [result: undefined, error: readonly [Err, ...Err[]] | undefined];
