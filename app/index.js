@@ -4,7 +4,15 @@ import { boolT } from '../lib/common/lit/runtime/types/boolT.js';
 import { numT } from '../lib/common/lit/runtime/types/numT.js';
 import { objT } from '../lib/common/lit/runtime/types/objT.js';
 import { strT } from '../lib/common/lit/runtime/types/strT.js';
-import { X, css, html, repeat, spread, until } from '../lib/common/x/X.js';
+import {
+	X,
+	css,
+	html,
+	nothing,
+	repeat,
+	spread,
+	until,
+} from '../lib/common/x/X.js';
 import { Button } from '../lib/components/Button.js';
 import '../lib/components/Dialog.js';
 import '../lib/components/Input.js';
@@ -22,6 +30,8 @@ import {
 	NoteSorters,
 } from './lib/core/NoteManager.js';
 import './lib/components/AppNavMenuFragment.js';
+import { Input } from '../lib/components/Input.js';
+import { convertDateToSqlDatetime } from '../lib/common/convert/convertDateToSqlDatetime.js';
 
 export class AppRoute extends X {
 	/**
@@ -37,6 +47,7 @@ export class AppRoute extends X {
 		noteSearchQuery: strT(stateT),
 		noteDialogOpen: boolT(stateT),
 		noteDialogNote: objT(stateT),
+		noteDialogWorkingNote: objT(stateT),
 
 		user: objT(stateT),
 	};
@@ -57,6 +68,10 @@ export class AppRoute extends X {
 		/** @type {boolean} */ this.noteDialogOpen = false;
 		/** @type {import('./lib/core/NoteManager.js').Note | undefined} */ this
 			.noteDialogNote;
+		/**
+		 * @type {| Partial<import('./lib/core/NoteManager.js').Note>
+		 * 	| undefined}
+		 */ this.noteDialogWorkingNote;
 
 		/**
 		 * @type {| import('./lib/core/NoteManager.js').Note['owner']
@@ -106,8 +121,12 @@ export class AppRoute extends X {
 	}
 
 	async #createNoteAndToast(
-		/** @type {string} */ title,
-		/** @type {string} */ description,
+		/**
+		 * @type {Pick<
+		 * 	import('./lib/core/NoteManager.js').Note,
+		 * 	'title' | 'description' | 'dateStart' | 'dateDue' | 'priority'
+		 * >}
+		 */ { title, description, dateStart, dateDue, priority },
 	) {
 		this.notePlaceholders.push({
 			title,
@@ -118,7 +137,12 @@ export class AppRoute extends X {
 		const [, err] = await NoteManager.instance.create({
 			title,
 			description,
+			dateStart,
+			dateDue,
+			priority,
 		});
+
+		console.error(err);
 		if (err)
 			for (const e of err) Toaster.toast(e.message, Toast.variants.error);
 		else Toaster.toast('Successfully created note', Toast.variants.ok);
@@ -150,12 +174,17 @@ export class AppRoute extends X {
 	async #editNoteAndToast(
 		/** @type {import('./lib/core/NoteManager.js').Note} */ note,
 		/**
-		 * @type {Partial<{
-		 * 	title: string;
-		 * 	description: string;
-		 * 	done: boolean;
-		 * 	priority: import('./lib/core/NoteManager.js').NotePriority;
-		 * }>}
+		 * @type {Partial<
+		 * 	Pick<
+		 * 		import('./lib/core/NoteManager.js').Note,
+		 * 		| 'title'
+		 * 		| 'done'
+		 * 		| 'description'
+		 * 		| 'priority'
+		 * 		| 'dateStart'
+		 * 		| 'dateDue'
+		 * 	>
+		 * >}
 		 */ to,
 	) {
 		const { cancel } = Toaster.toast('Updating note…');
@@ -351,6 +380,12 @@ export class AppRoute extends X {
 								${spread(Button.variants.primary)}
 								${spread(Button.variants.shadowSm)}
 								@click=${() => {
+									this.noteDialogWorkingNote = {
+										title: '',
+										description: '',
+										dateStart: new Date(),
+										dateDue: new Date(),
+									};
 									this.noteDialogOpen = true;
 								}}
 								><x-i slot="left">sticky_note_2</x-i>Add a
@@ -385,6 +420,8 @@ export class AppRoute extends X {
 												}}
 												@edit=${() => {
 													this.noteDialogNote = note;
+													this.noteDialogWorkingNote =
+														{ ...note };
 													this.noteDialogOpen = true;
 												}}
 												@done=${() => {
@@ -474,6 +511,28 @@ export class AppRoute extends X {
 							const description = String(
 								formData.get('description'),
 							);
+							const dateStart = new Date(
+								Number(
+									new Date(
+										String(formData.get('date-start')),
+									),
+								) -
+									new Date().getTimezoneOffset() * 60 * 1000,
+							);
+							const dateDue = formData.get('all-day')
+								? new Date(0)
+								: new Date(
+										Number(
+											new Date(
+												String(
+													formData.get('date-due'),
+												),
+											),
+										) -
+											new Date().getTimezoneOffset() *
+												60 *
+												1000,
+								  );
 
 							if (!title)
 								Toaster.toast(
@@ -484,33 +543,90 @@ export class AppRoute extends X {
 
 							if (!ok) return;
 
-							this.noteDialogOpen = false;
 							form.reset();
+							this.noteDialogOpen = false;
+							this.noteDialogWorkingNote = undefined;
 
 							if (this.noteDialogNote) {
 								void this.#editNoteAndToast(
 									this.noteDialogNote,
-									{ title, description },
+									{ title, description, dateStart, dateDue },
 								);
 								this.noteDialogNote = undefined;
+								this.noteDialogWorkingNote = undefined;
 							} else
-								void this.#createNoteAndToast(
+								void this.#createNoteAndToast({
 									title,
 									description,
-								);
+									dateStart,
+									dateDue,
+									priority: 0,
+								});
 						}}
 					>
 						<x-input
 							name="title"
 							label="Title"
-							value=${this.noteDialogNote?.title ?? ''}
+							.value=${this.noteDialogWorkingNote?.title ?? ''}
 						></x-input>
 						<x-input
 							name="description"
 							label="Description"
-							value=${this.noteDialogNote?.description ?? ''}
+							.value=${this.noteDialogWorkingNote?.description ??
+							''}
 						>
 						</x-input>
+						<x-input
+							name="date-start"
+							label="Start date"
+							type="datetime-local"
+							.value=${convertDateToSqlDatetime(
+								this.noteDialogWorkingNote?.dateStart ??
+									new Date(),
+							)}
+						></x-input>
+						<div class="due">
+							${(this.noteDialogWorkingNote?.dateDue?.getUTCFullYear() ??
+								1970) <= 1970
+								? nothing
+								: html`
+										<x-input
+											name="date-due"
+											label="Due date"
+											type="datetime-local"
+											value=${convertDateToSqlDatetime(
+												this.noteDialogWorkingNote
+													?.dateDue ?? new Date(),
+											)}
+										></x-input>
+								  `}
+							<x-input
+								name="all-day"
+								label="All day"
+								type="checkbox"
+								.checked=${(this.noteDialogWorkingNote?.dateDue?.getUTCFullYear() ??
+									1970) <= 1970}
+								@change=${(
+									/**
+									 * @type {CustomEvent & {
+									 * 	currentTarget: Input;
+									 * }}
+									 */ e,
+								) => {
+									if (!this.noteDialogWorkingNote) return;
+
+									if (e.currentTarget.checked)
+										this.noteDialogWorkingNote.dateDue =
+											new Date(0);
+									else
+										this.noteDialogWorkingNote.dateDue =
+											this.noteDialogWorkingNote
+												.dateStart ?? new Date();
+
+									this.requestUpdate('noteDialogWorkingNote');
+								}}
+							></x-input>
+						</div>
 					</form>
 					<x-button
 						type="submit"
@@ -627,6 +743,15 @@ export class AppRoute extends X {
 				display: flex;
 				flex-direction: column;
 				gap: 14px;
+			}
+
+			x-dialog.note-new > form > .due {
+				display: flex;
+				gap: 14px;
+			}
+
+			x-dialog.note-new > form > .due > x-input:checked ~ x-input {
+				display: none;
 			}
 		`,
 	];

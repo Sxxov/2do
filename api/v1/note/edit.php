@@ -6,6 +6,7 @@ use api\v1\lib\auth\Authenticator;
 use api\v1\lib\common\ResErr;
 use api\v1\lib\common\ResErrCodes;
 use api\v1\lib\common\ResOk;
+use api\v1\lib\common\Vali;
 use api\v1\lib\db\Db;
 use api\v1\lib\db\DbInfo;
 use api\v1\lib\note\Note;
@@ -21,9 +22,57 @@ if (!isset($in->id)) {
 	return (new ResErr(ResErrCodes::INCOMPLETE))->echo();
 }
 
+Vali::check($in, [
+	'id' => Vali::$string,
+	'?title' => Vali::$string,
+	'?description' => Vali::$string,
+	'?done' => Vali::$bool,
+	'?priority' => Vali::$int,
+	'?dateStart' => Vali::$datetime,
+	'?dateDue' => Vali::$datetime,
+])
+	->ifErr()
+	?->return();
+
 $userRes = (new Authenticator())->getSessionUser();
 
 $id = $in->id;
+
+try {
+	$res = $db->query(
+		<<<SQL
+		SELECT * FROM notes WHERE todo_id = "{$db->real_escape_string(
+			$id,
+		)}" AND owner = "{$db->real_escape_string($userRes->data['id'])}";
+		SQL
+		,
+	);
+
+	if (!$res || $res->num_rows === 0) {
+		return (new ResErr(
+			ResErrCodes::NOT_FOUND,
+			message: 'Attempted to edit a note that does not exist',
+		))->echo();
+	}
+
+	$row = $res->fetch_assoc();
+
+	$note = new Note(
+		id: $row['todo_id'],
+		title: $row['title'],
+		owner: $row['owner'],
+		description: $row['description'],
+		dateCreated: $row['date_created'],
+		dateModified: $row['date_modified'],
+		dateStart: $row['date_start'],
+		dateDue: $row['date_due'],
+		done: (bool) $row['done'],
+		priority: $row['priority'],
+	);
+} catch (mysqli_sql_exception $err) {
+	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();
+}
+
 $queries = [];
 
 if (isset($in->title)) {
@@ -38,7 +87,18 @@ if (isset($in->done)) {
 if (isset($in->priority)) {
 	$queries[] = "priority = '{$db->real_escape_string($in->priority)}'";
 }
-if (isset($in->title) || isset($in->description)) {
+if (isset($in->dateStart)) {
+	$queries[] = "date_start = '{$db->real_escape_string($in->dateStart)}'";
+}
+if (isset($in->dateDue)) {
+	$queries[] = "date_due = '{$db->real_escape_string($in->dateDue)}'";
+}
+if (
+	(isset($in->title) && $in->title !== $note->title) ||
+	(isset($in->description) && $in->description !== $note->description) ||
+	(isset($in->dateStart) && $in->dateStart !== $note->dateStart) ||
+	(isset($in->dateDue) && $in->dateDue !== $note->dateDue)
+) {
 	$queries[] = "date_modified = '{$db->real_escape_string(
 		(new DateTime())->format('Y-m-d H:i:s'),
 	)}'";
@@ -63,13 +123,6 @@ try {
 
 	if (!$res) {
 		return (new ResErr(ResErrCodes::UNKNOWN, detail: $db->error))->echo();
-	}
-
-	if ($db->affected_rows <= 0) {
-		return (new ResErr(
-			ResErrCodes::NOT_FOUND,
-			message: 'Attempted to edit a note that does not exist',
-		))->echo();
 	}
 } catch (mysqli_sql_exception $err) {
 	return (new ResErr(ResErrCodes::UNKNOWN, detail: $err))->echo();

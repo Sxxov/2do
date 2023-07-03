@@ -42,6 +42,8 @@ try {
 		description: $row['description'],
 		dateCreated: $row['date_created'],
 		dateModified: $row['date_modified'],
+		dateStart: $row['date_start'],
+		dateDue: $row['date_due'],
 		done: (bool) $row['done'],
 		priority: $row['priority'],
 	);

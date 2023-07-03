@@ -6,7 +6,7 @@ export class AppNavMenuFragment extends X {
 		return html`
 			<h2>General</h2>
 			<a href="/app">Home</a>
-			<a href="/app/reminders">Reminders</a>
+			<a href="/app/calendar">Calendar</a>
 			<h2>Account</h2>
 			<a href="/auth/sign-out">Sign-out</a>
 		`;

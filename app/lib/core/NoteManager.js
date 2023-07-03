@@ -13,10 +13,13 @@
  * 	};
  * 	dateCreated: Date;
  * 	dateModified: Date;
+ * 	dateStart: Date;
+ * 	dateDue: Date;
  * 	peepeepoopoo: string;
  * }} Note
  */
 
+import { convertDateToSqlDatetime } from '../../../lib/common/convert/convertDateToSqlDatetime.js';
 import { AuthManager } from './AuthManager.js';
 
 /** @typedef {OneOf<NoteSortKinds>} NoteSortKind */
@@ -54,10 +57,10 @@ export class NoteManager {
 
 	async create(
 		/**
-		 * @type {{
-		 * 	title: string;
-		 * 	description: string;
-		 * }}
+		 * @type {Pick<
+		 * 	Note,
+		 * 	'title' | 'description' | 'dateStart' | 'dateDue' | 'priority'
+		 * >}
 		 */ note,
 	) {
 		let data;
@@ -67,7 +70,13 @@ export class NoteManager {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(note),
+				body: JSON.stringify({
+					title: note.title,
+					description: note.description,
+					dateStart: convertDateToSqlDatetime(note.dateStart),
+					dateDue: convertDateToSqlDatetime(note.dateDue),
+					priority: note.priority,
+				}),
 			});
 
 			data = await res.json();
@@ -107,13 +116,18 @@ export class NoteManager {
 	edit(
 		/** @type {Note} */ src,
 		/**
-		 * @type {Partial<{
-		 * 	title: string;
-		 * 	description: string;
-		 * 	done: boolean;
-		 * 	priority: NotePriority;
-		 * }>}
-		 */ { title, description, done, priority },
+		 * @type {Partial<
+		 * 	Pick<
+		 * 		Note,
+		 * 		| 'title'
+		 * 		| 'description'
+		 * 		| 'done'
+		 * 		| 'priority'
+		 * 		| 'dateStart'
+		 * 		| 'dateDue'
+		 * 	>
+		 * >}
+		 */ { title, description, done, priority, dateStart, dateDue },
 	) {
 		src = { ...src };
 
@@ -121,6 +135,8 @@ export class NoteManager {
 		if (description) src.description = description;
 		if (done) src.done = done;
 		if (priority) src.priority = priority;
+		if (dateStart) src.dateStart = dateStart;
+		if (dateDue) src.dateDue = dateDue;
 		if (title || description) src.dateModified = new Date();
 
 		return src;
@@ -141,6 +157,22 @@ export class NoteManager {
 					description: note.description,
 					done: note.done,
 					priority: note.priority,
+					dateStart: convertDateToSqlDatetime(
+						new Date(
+							Number(new Date(String(note.dateStart))) -
+								new Date().getTimezoneOffset() * 60 * 1000,
+						),
+					),
+					dateDue: note.dateDue
+						? convertDateToSqlDatetime(
+								new Date(
+									Number(new Date(String(note.dateDue))) -
+										new Date().getTimezoneOffset() *
+											60 *
+											1000,
+								),
+						  )
+						: null,
 				}),
 			});
 
@@ -251,6 +283,8 @@ export class NoteManager {
 			 * 		owner: string;
 			 * 		dateCreated: string;
 			 * 		dateModified: string;
+			 * 		dateStart: string;
+			 * 		dateDue: string;
 			 * 		peepeepoopoo: 'peepeepoopoo';
 			 * 	}[]
 			 * >}
@@ -283,6 +317,8 @@ export class NoteManager {
 				data.data.map(async (note) => {
 					const dateCreated = new Date(note.dateCreated);
 					const dateModified = new Date(note.dateModified);
+					const dateStart = new Date(note.dateStart);
+					const dateDue = new Date(note.dateDue);
 
 					const [userRes, userErr] =
 						await AuthManager.instance.getUser(note.owner);
@@ -307,6 +343,8 @@ export class NoteManager {
 						},
 						dateCreated,
 						dateModified,
+						dateStart,
+						dateDue,
 						peepeepoopoo: note.peepeepoopoo,
 					};
 				}),

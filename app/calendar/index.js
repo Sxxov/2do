@@ -1,7 +1,10 @@
 import { stateT } from '../../lib/common/lit/runtime/traits/stateT.js';
 import { numT } from '../../lib/common/lit/runtime/types/numT.js';
 import { objT } from '../../lib/common/lit/runtime/types/objT.js';
-import { X, css, html } from '../../lib/common/x/X.js';
+import { X, css, html, spread } from '../../lib/common/x/X.js';
+import { Button } from '../../lib/components/Button.js';
+import '../../lib/layout/Main.js';
+import '../lib/components/AppNavMenuFragment.js';
 
 export class AppCalendarRoute extends X {
 	/**
@@ -22,13 +25,21 @@ export class AppCalendarRoute extends X {
 	render() {
 		return html`
 			<x-main>
-			<x-app-menu-fragment slot="menu"></x-app-menu-fragment>
-				<x-app-cta-fragment
-					slot="cta"
-					@refresh=${() => {
-						void this.#refreshAndToastNotes();
-					}}
-				></x-app-cta-fragment>
+				<div slot="nav-left">
+					<x-button
+						${spread(Button.variants.secondary)}
+						@click=${() => {
+							location.href = '/app';
+						}}
+					>
+						<x-i slot="left">list</x-i>
+						List view
+					</x-button>
+				</div>
+				<x-app-nav-menu-fragment
+					slot="nav-menu"
+				></x-app-nav-menu-fragment>
+				<div slot="nav-right"></div>
 				<h1>Calendar</h1>
 			</x-main>
 		`;

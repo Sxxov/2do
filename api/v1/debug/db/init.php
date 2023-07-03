@@ -28,7 +28,6 @@ $db->query(
 	SQL
 	,
 );
-
 $db->query(
 	<<<SQL
 		CREATE TABLE IF NOT EXISTS reminders (
@@ -40,7 +39,6 @@ $db->query(
 	SQL
 	,
 );
-
 $db->query(
 	<<<SQL
 		CREATE TABLE IF NOT EXISTS notes (
@@ -52,6 +50,8 @@ $db->query(
 			description TEXT(65535) NOT NULL,
 			date_created DATETIME NOT NULL,
 			date_modified DATETIME NOT NULL,
+			date_start DATETIME NOT NULL,
+			date_due DATETIME NOT NULL,
 			done BOOLEAN NOT NULL,
 			priority INT NOT NULL
 		);
