@@ -548,8 +548,6 @@ export class AppRoute extends X {
 									  'priority-urgent'
 									? NotePriorities.URGENT
 									: NotePriorities.NORMAL;
-							console.log(Object.fromEntries(formData.entries()));
-							console.log({ dateStart, dateDue });
 							if (!title)
 								Toaster.toast(
 									'Please enter a title',
