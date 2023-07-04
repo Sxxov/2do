@@ -170,8 +170,6 @@ export class NoteDialog extends X {
 
 	/** @override */
 	render() {
-		console.log('NoteDialog#render');
-
 		return html`
 			<x-dialog
 				?open=${this.open}

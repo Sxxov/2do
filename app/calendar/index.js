@@ -107,15 +107,6 @@ export class AppCalendarRoute extends X {
 	}
 
 	/** @override */
-	willUpdate(
-		/** @type {import('lit-element').PropertyValues<this>} */ changedProperties,
-	) {
-		super.willUpdate(changedProperties);
-
-		console.log(changedProperties);
-	}
-
-	/** @override */
 	render() {
 		return html`
 			<x-main
