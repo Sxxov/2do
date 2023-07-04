@@ -67,7 +67,11 @@ export class NoteItem extends X {
 					<div class="info">
 						<p class="title">
 							${this.title}<span class="meta"
-								>${this.date?.toLocaleString() ?? nothing}</span
+								>${this.date?.toLocaleString(undefined, {
+									weekday: 'short',
+									month: 'short',
+									day: 'numeric',
+								}) ?? nothing}</span
 							>
 						</p>
 						${this.description
@@ -172,7 +176,7 @@ export class NoteItem extends X {
 
 			.content > .info > .title > .meta {
 				margin: 0;
-				font-weight: thin;
+				font-weight: 100;
 				font-size: 0.8rem;
 				color: var(----colour-text-secondary);
 				margin-left: 0.5rem;
