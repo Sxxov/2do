@@ -34,6 +34,11 @@ class User {
 	}
 
 	public static function isValidPassword(string $password): bool {
-		return strlen($password) >= 8 && strlen($password) <= 255;
+		return strlen($password) >= 8 &&
+			strlen($password) <= 255 &&
+			preg_match(
+				'/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]*$/',
+				$password,
+			);
 	}
 }

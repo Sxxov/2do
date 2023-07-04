@@ -52,6 +52,20 @@ export class AuthManager {
 				[new Error('Password must be shorter than 255 characters')],
 			];
 
+		if (
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]*$/.test(
+				password,
+			)
+		)
+			return [
+				false,
+				[
+					new Error(
+						'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
+					),
+				],
+			];
+
 		return [true, undefined];
 	}
 
