@@ -22,7 +22,7 @@ After you've initialised the database, you can start using 2do by opening [`/app
 - [x] Basic task management
 - [x] Task prioritisation
 - [x] Task due dates
-- [ ] Calendar view
+- [x] Calendar view
 - [ ] Task categories
 - [ ] More task organisation options
 - [ ] Remove peepeepoopoo
