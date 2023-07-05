@@ -222,7 +222,7 @@ export class NoteDialog extends X {
 							) -
 								new Date().getTimezoneOffset() * 60 * 1000,
 						);
-						const dateDue = formData.get('all-day')
+						const dateDue = formData.get('all-time')
 							? new Date(0)
 							: new Date(
 									Number(
@@ -310,8 +310,8 @@ export class NoteDialog extends X {
 									></x-input>
 							  `}
 						<x-input
-							name="all-day"
-							label="All day"
+							name="all-time"
+							label="All time"
 							type="checkbox"
 							.checked=${(this.noteCache?.dateDue?.getUTCFullYear() ??
 								1970) <= 1970}
