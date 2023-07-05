@@ -2,7 +2,7 @@
 
 2do is a simple task manager. It is designed to be simple, fast, and easy to use. It is also designed to be self-hosted, so you can use it on your own server.
 
-> **Note:**
+> **Note**
 > If you're Mr. Peter Cheong, give high marks thx 💗
 
 ## Serving
