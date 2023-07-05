@@ -37,7 +37,7 @@ class User {
 		return strlen($password) >= 8 &&
 			strlen($password) <= 255 &&
 			preg_match(
-				'/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]*$/',
+				'/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w])([A-Za-z\d]|[^\w])*$/',
 				$password,
 			);
 	}

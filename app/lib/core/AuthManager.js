@@ -25,55 +25,67 @@ export class AuthManager {
 
 	/** @returns {ResultBranched<true, false>} */
 	static validateUsername(/** @type {string} */ username) {
+		const err = [];
+
 		if (!username) return [false, [new Error('Please enter a username')]];
 
 		if (username.length < 3 || username.length > 20)
-			return [
-				false,
-				[new Error('Username must be between 3 to 20 characters')],
-			];
+			err.push(
+				new Error('Username must be between 3 and 20 characters long'),
+			);
+
+		if (!username.match(/^[a-zA-Z0-9_]+$/g))
+			err.push(
+				new Error(
+					'Username must only contain letters, numbers and underscores',
+				),
+			);
+
+		if (err.length > 0)
+			return [false, /** @type {[Error, ...Error[]]} */ (err)];
 
 		return [true, undefined];
 	}
 
 	/** @returns {ResultBranched<true, false>} */
 	static validatePassword(/** @type {string} */ password) {
+		const err = [];
+
 		if (!password) return [false, [new Error('Please enter a password')]];
 
 		if (password.length < 8)
-			return [
-				false,
-				[new Error('Password must be longer than 8 characters')],
-			];
-
-		if (password.length > 255)
-			return [
-				false,
-				[new Error('Password must be shorter than 255 characters')],
-			];
+			err.push(new Error('Password must be at least 8 characters long'));
+		else if (password.length > 255)
+			err.push(new Error('Password must be at most 255 characters long'));
 
 		if (
-			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]*$/.test(
+			!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w])([A-Za-z\d]|[^\w])*$/.test(
 				password,
 			)
 		)
-			return [
-				false,
-				[
-					new Error(
-						'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
-					),
-				],
-			];
+			err.push(
+				new Error(
+					'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
+				),
+			);
+
+		if (err.length > 0)
+			return [false, /** @type {[Error, ...Error[]]} */ (err)];
 
 		return [true, undefined];
 	}
 
+	/** @returns {ResultBranched<true, false>} */
 	static validateEmail(/** @type {string} */ email) {
+		const err = [];
+
 		if (!email) return [false, [new Error('Please enter an email')]];
 
 		if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g))
-			return [false, [new Error('Please enter a valid email')]];
+			err.push(new Error('Please enter a valid email'));
+
+		if (err.length > 0)
+			return [false, /** @type {[Error, ...Error[]]} */ (err)];
 
 		return [true, undefined];
 	}
@@ -199,11 +211,17 @@ export class AuthManager {
 	) {
 		const [usernameOk, usernameErr] =
 			AuthManager.validateUsername(username);
-		if (!usernameOk) return [undefined, usernameErr];
-
 		const [passwordOk, passwordErr] =
 			AuthManager.validatePassword(password);
-		if (!passwordOk) return [undefined, passwordErr];
+
+		if (!usernameOk || !passwordOk)
+			return [
+				undefined,
+				/** @type {[Error, ...Error[]]} */ ([
+					...(usernameErr ?? []),
+					...(passwordErr ?? []),
+				]),
+			];
 
 		let data;
 		try {
@@ -265,11 +283,19 @@ export class AuthManager {
 	) {
 		const [usernameOk, usernameErr] =
 			AuthManager.validateUsername(username);
-		if (!usernameOk) return [undefined, usernameErr];
-
+		const [emailOk, emailErr] = AuthManager.validateEmail(email);
 		const [passwordOk, passwordErr] =
 			AuthManager.validatePassword(password);
-		if (!passwordOk) return [undefined, passwordErr];
+
+		if (!usernameOk || !passwordOk || !emailOk)
+			return [
+				undefined,
+				/** @type {[Error, ...Error[]]} */ ([
+					...(usernameErr ?? []),
+					...(emailErr ?? []),
+					...(passwordErr ?? []),
+				]),
+			];
 
 		let data;
 		try {
