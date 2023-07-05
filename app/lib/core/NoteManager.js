@@ -22,22 +22,23 @@
 import { convertDateToSqlDatetime } from '../../../lib/common/convert/convertDateToSqlDatetime.js';
 import { AuthManager } from './AuthManager.js';
 
-/** @typedef {OneOf<NoteSortKinds>} NoteSortKind */
+/** @typedef {OneOf<typeof NoteSortKinds>} NoteSortKind */
 export const NoteSortKinds = /** @type {const} */ ({
 	DATE_CREATED: 'date-created',
 	DATE_MODIFIED: 'date-modified',
 	ALPHANUMERIC: 'alphanumeric',
+	PRIORITY: 'priority',
 });
 
-/** @typedef {OneOf<NotePriorities>} NotePriority */
+/** @typedef {OneOf<typeof NotePriorities>} NotePriority */
 export const NotePriorities = /** @type {const} */ ({
 	NORMAL: 0,
 	IMPORTANT: 1,
 	URGENT: 2,
 });
 
-/** @typedef {OneOf<NoteSorters>} NoteSorter */
-export const NoteSorters = {
+/** @typedef {OneOf<typeof NoteSorters>} NoteSorter */
+export const NoteSorters = /** @type {const} */ ({
 	[NoteSortKinds.DATE_CREATED]: (
 		/** @type {Note} */ a,
 		/** @type {Note} */ b,
@@ -50,7 +51,9 @@ export const NoteSorters = {
 		/** @type {Note} */ a,
 		/** @type {Note} */ b,
 	) => a.title.localeCompare(b.title),
-};
+	[NoteSortKinds.PRIORITY]: (/** @type {Note} */ a, /** @type {Note} */ b) =>
+		a.priority - b.priority,
+});
 
 export class NoteManager {
 	static instance = new NoteManager();

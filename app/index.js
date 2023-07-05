@@ -26,13 +26,10 @@ import '../lib/components/Dropdown.js';
 import { AuthManager } from './lib/core/AuthManager.js';
 import {
 	NoteManager,
-	NotePriorities,
 	NoteSortKinds,
 	NoteSorters,
 } from './lib/core/NoteManager.js';
 import './lib/components/AppNavMenuFragment.js';
-import { Input } from '../lib/components/Input.js';
-import { convertDateToSqlDatetime } from '../lib/common/convert/convertDateToSqlDatetime.js';
 import './lib/components/NoteDialog.js';
 
 export class AppRoute extends X {
@@ -349,6 +346,11 @@ export class AppRoute extends X {
 												icon: 'sort_by_alpha',
 												title: 'Alphabetical',
 												value: NoteSortKinds.ALPHANUMERIC,
+											},
+											{
+												icon: 'low_priority',
+												title: 'Priority',
+												value: NoteSortKinds.PRIORITY,
 											},
 										]}
 										@change=${(
